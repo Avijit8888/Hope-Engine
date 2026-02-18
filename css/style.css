@@ -1,81 +1,165 @@
+/* =============================
+   GLOBAL STYLES
+============================= */
+
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
     font-family: 'Inter', sans-serif;
-    background: #0b0b0f;
+    background: linear-gradient(135deg, #0b0b0f, #11111a);
     color: #ffffff;
 }
 
+/* =============================
+   CONTAINER
+============================= */
+
 .container {
-    max-width: 900px;
+    max-width: 1100px;
     margin: auto;
-    padding: 20px;
+    padding: 30px 20px;
 }
+
+/* =============================
+   HEADER
+============================= */
 
 header {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 50px;
 }
 
 h1 {
     color: #d4af37;
     font-weight: 600;
+    font-size: 2.2rem;
+    margin-bottom: 10px;
 }
 
 .quote {
     font-style: italic;
     opacity: 0.8;
-    margin-top: 10px;
+    font-size: 0.95rem;
+}
+
+/* =============================
+   JOURNAL SECTION
+============================= */
+
+.journal h2 {
+    margin-bottom: 20px;
+    font-weight: 500;
 }
 
 .journal textarea {
     width: 100%;
-    height: 120px;
+    height: 140px;
     padding: 15px;
-    border-radius: 10px;
+    border-radius: 12px;
     border: none;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     background: #15151d;
     color: white;
+    font-size: 0.95rem;
+    resize: none;
+    transition: 0.3s ease;
 }
+
+.journal textarea:focus {
+    outline: none;
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+}
+
+/* =============================
+   SLIDERS
+============================= */
 
 .sliders {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 20px;
 }
 
 .slider-group label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
 }
 
 input[type="range"] {
     width: 100%;
+    appearance: none;
+    height: 6px;
+    border-radius: 5px;
+    background: #2a2a35;
+    outline: none;
 }
 
-button {
-    margin-top: 20px;
-    padding: 12px;
-    width: 100%;
-    border: none;
-    border-radius: 8px;
+/* Slider Thumb */
+input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
     background: #d4af37;
-    color: #000;
-    font-weight: 600;
     cursor: pointer;
 }
 
-button:hover {
-    opacity: 0.9;
+input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #d4af37;
+    cursor: pointer;
 }
+
+/* =============================
+   BUTTON
+============================= */
+
+button {
+    margin-top: 25px;
+    padding: 14px;
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    background: #d4af37;
+    color: #000;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(212, 175, 55, 0.4);
+}
+
+/* =============================
+   DASHBOARD LINK
+============================= */
 
 .dashboard-link {
     display: block;
-    margin-top: 20px;
+    margin-top: 25px;
     text-align: center;
     color: #d4af37;
     text-decoration: none;
+    font-size: 0.95rem;
+    transition: 0.3s ease;
 }
+
+.dashboard-link:hover {
+    opacity: 0.8;
+}
+
+/* =============================
+   TABLET RESPONSIVE
+============================= */
 
 @media (min-width: 768px) {
     .sliders {
@@ -85,5 +169,31 @@ button:hover {
 
     .slider-group {
         width: 30%;
+    }
+}
+
+/* =============================
+   DESKTOP PREMIUM LAYOUT
+============================= */
+
+@media (min-width: 992px) {
+
+    .journal {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 50px;
+        align-items: start;
+    }
+
+    .journal textarea {
+        height: 220px;
+    }
+
+    .sliders {
+        flex-direction: column;
+    }
+
+    button {
+        width: 100%;
     }
 }
