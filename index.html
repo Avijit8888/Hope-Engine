@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hope Engine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="container">
+
+        <header>
+            <h1>Hope Engine</h1>
+            <p class="quote" id="dailyQuote"></p>
+        </header>
+
+        <section class="journal">
+            <h2>What moved your inner state today?</h2>
+
+            <textarea id="reflection" placeholder="Write your reflection..."></textarea>
+
+            <div class="sliders">
+
+                <div class="slider-group">
+                    <label>Hope: <span id="hopeValue">5</span></label>
+                    <input type="range" id="hope" min="0" max="10" value="5">
+                </div>
+
+                <div class="slider-group">
+                    <label>Fear: <span id="fearValue">5</span></label>
+                    <input type="range" id="fear" min="0" max="10" value="5">
+                </div>
+
+                <div class="slider-group">
+                    <label>Void: <span id="voidValue">5</span></label>
+                    <input type="range" id="void" min="0" max="10" value="5">
+                </div>
+
+            </div>
+
+            <button id="saveEntry">Anchor This Moment</button>
+            <a href="dashboard.html" class="dashboard-link">View Dashboard →</a>
+        </section>
+
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
