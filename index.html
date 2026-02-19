@@ -1,70 +1,44 @@
-<header class="navbar">
-    <div class="logo">Hope Engine</div>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="input.html">Record</a>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="journal.html">Journal</a>
-        <a href="settings.html">Settings</a>
-    </nav>
-</header>
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hope Engine | Home</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<header class="navbar">
-    <div class="logo">Hope Engine</div>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="input.html">Record</a>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="journal.html">Journal</a>
-        <a href="settings.html">Settings</a>
-    </nav>
-</header>
+<h1>Hope Engine</h1>
 
-<div class="container">
-
-    <h1>Welcome Back</h1>
-
-    <div class="card">
-        <h3>Today's Psychological Index</h3>
-        <p id="todayIndex">--</p>
-    </div>
-
-    <div class="card">
-        <h3>Current Discipline Mode</h3>
-        <p id="disciplineMode">Structured</p>
-    </div>
-
-    <div class="card">
-        <h3>7-Day Preview</h3>
-        <p>Mini trend will appear here</p>
-    </div>
-
+<div>
+    <h3>Today's Daily Close</h3>
+    <p id="todayIndex">--</p>
 </div>
 
-<nav class="bottom-nav">
-    <a href="index.html">🏠</a>
-    <a href="input.html">➕</a>
-    <a href="dashboard.html">📊</a>
-    <a href="journal.html">📖</a>
-    <a href="settings.html">⚙</a>
-</nav>
+<div>
+    <h3>7-Day Average</h3>
+    <p id="avg7">--</p>
+</div>
+
+<a href="input.html">Record Entry</a>
+<a href="dashboard.html">Dashboard</a>
+<a href="journal.html">Journal</a>
+<a href="settings.html">Settings</a>
 
 <script src="js/engine.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    const today = HopeEngine.getTodayClose();
+    const avg7 = HopeEngine.getLast7Average();
+
+    document.getElementById("todayIndex").textContent =
+        today !== null ? today : "No Daily Close Yet";
+
+    document.getElementById("avg7").textContent =
+        avg7 !== null ? avg7 : "Not enough data";
+
+});
+</script>
+
 </body>
 </html>
-<nav class="bottom-nav">
-    <a href="index.html">🏠</a>
-    <a href="input.html">➕</a>
-    <a href="dashboard.html">📊</a>
-    <a href="journal.html">📖</a>
-    <a href="settings.html">⚙</a>
-</nav>
