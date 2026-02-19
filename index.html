@@ -1,54 +1,70 @@
+<header class="navbar">
+    <div class="logo">Hope Engine</div>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="input.html">Record</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="journal.html">Journal</a>
+        <a href="settings.html">Settings</a>
+    </nav>
+</header>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Hope Engine</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hope Engine | Home</title>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-    <div class="container">
+<header class="navbar">
+    <div class="logo">Hope Engine</div>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="input.html">Record</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="journal.html">Journal</a>
+        <a href="settings.html">Settings</a>
+    </nav>
+</header>
 
-        <header>
-            <h1>Hope Engine</h1>
-            <p class="quote" id="dailyQuote"></p>
-        </header>
+<div class="container">
 
-        <section class="journal">
-            <h2>What moved your inner state today?</h2>
+    <h1>Welcome Back</h1>
 
-            <textarea id="reflection" placeholder="Write your reflection..."></textarea>
-
-            <div class="sliders">
-
-                <div class="slider-group">
-                    <label>Hope: <span id="hopeValue">5</span></label>
-                    <input type="range" id="hope" min="0" max="10" value="5">
-                </div>
-
-                <div class="slider-group">
-                    <label>Fear: <span id="fearValue">5</span></label>
-                    <input type="range" id="fear" min="0" max="10" value="5">
-                </div>
-
-                <div class="slider-group">
-                    <label>Void: <span id="voidValue">5</span></label>
-                    <input type="range" id="void" min="0" max="10" value="5">
-                </div>
-
-            </div>
-
-            <button id="saveEntry">Anchor This Moment</button>
-            <a href="dashboard.html" class="dashboard-link">View Dashboard →</a>
-        </section>
-
+    <div class="card">
+        <h3>Today's Psychological Index</h3>
+        <p id="todayIndex">--</p>
     </div>
 
-    <script src="js/app.js"></script>
+    <div class="card">
+        <h3>Current Discipline Mode</h3>
+        <p id="disciplineMode">Structured</p>
+    </div>
+
+    <div class="card">
+        <h3>7-Day Preview</h3>
+        <p>Mini trend will appear here</p>
+    </div>
+
+</div>
+
+<nav class="bottom-nav">
+    <a href="index.html">🏠</a>
+    <a href="input.html">➕</a>
+    <a href="dashboard.html">📊</a>
+    <a href="journal.html">📖</a>
+    <a href="settings.html">⚙</a>
+</nav>
+
+<script src="js/engine.js"></script>
 </body>
 </html>
+<nav class="bottom-nav">
+    <a href="index.html">🏠</a>
+    <a href="input.html">➕</a>
+    <a href="dashboard.html">📊</a>
+    <a href="journal.html">📖</a>
+    <a href="settings.html">⚙</a>
+</nav>
