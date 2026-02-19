@@ -1,53 +1,80 @@
+<header class="navbar">
+    <div class="logo">Hope Engine</div>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="input.html">Record</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="journal.html">Journal</a>
+        <a href="settings.html">Settings</a>
+    </nav>
+</header>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Hope Engine Dashboard</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hope Engine | Dashboard</title>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
+<header class="navbar">
+    <div class="logo">Hope Engine</div>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="input.html">Record</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="journal.html">Journal</a>
+        <a href="settings.html">Settings</a>
+    </nav>
+</header>
+
 <div class="container">
 
-    <header>
-        <h1>Emotional Dashboard</h1>
-        <p class="quote">Your emotional market trend.</p>
-    </header>
+    <h1>Psychological Terminal</h1>
 
-    <section class="dashboard">
+    <div class="big-metric">
+        <h2>Brutal Truth Score</h2>
+        <p id="brutalScore">--</p>
+    </div>
 
-        <div class="card">
-            <h3>Latest Score</h3>
-            <p id="latestScore">-</p>
-        </div>
+    <div class="timeframe">
+        <button>1D</button>
+        <button>1W</button>
+        <button>1M</button>
+        <button>1Y</button>
+        <button>10Y</button>
+    </div>
 
-        <div class="card">
-            <h3>Current Phase</h3>
-            <p id="phase">-</p>
-        </div>
+    <div class="chart-area">
+        Chart will render here
+    </div>
 
-        <div class="card">
-            <h3>Stability Index</h3>
-            <p id="stability">-</p>
-        </div>
-
-        <div class="chart-container">
-            <canvas id="trendChart"></canvas>
-        </div>
-
-        <a href="index.html" class="dashboard-link">← Back to Journal</a>
-
-    </section>
+    <div class="metrics">
+        <div class="card">Simple Average: --</div>
+        <div class="card">Weighted Average: --</div>
+        <div class="card">Volatility: --</div>
+        <div class="card">Stability: --</div>
+        <div class="card">Phase: --</div>
+    </div>
 
 </div>
 
-<script src="js/dashboard.js"></script>
+<nav class="bottom-nav">
+    <a href="index.html">🏠</a>
+    <a href="input.html">➕</a>
+    <a href="dashboard.html">📊</a>
+    <a href="journal.html">📖</a>
+    <a href="settings.html">⚙</a>
+</nav>
 
+<script src="js/engine.js"></script>
 </body>
 </html>
+<nav class="bottom-nav">
+    <a href="index.html">🏠</a>
+    <a href="input.html">➕</a>
+    <a href="dashboard.html">📊</a>
+    <a href="journal.html">📖</a>
+    <a href="settings.html">⚙</a>
+</nav>
