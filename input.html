@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Record Entry | Hope Engine</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<h1>Record Entry</h1>
+
+<label>Entry Type</label>
+<select id="entryType">
+    <option value="intraday">Intraday</option>
+    <option value="daily_close">Daily Close</option>
+</select>
+
+<br><br>
+
+<label>Mood (0 - 1)</label>
+<input type="range" id="mood" min="0" max="1" step="0.01" value="0.5">
+<span id="moodValue">0.50</span>
+
+<br><br>
+
+<label>Energy (1 - 10)</label>
+<input type="number" id="energy" min="1" max="10" value="5">
+
+<br><br>
+
+<label>Focus (1 - 10)</label>
+<input type="number" id="focus" min="1" max="10" value="5">
+
+<br><br>
+
+<label>Discipline (1 - 10)</label>
+<input type="number" id="discipline" min="1" max="10" value="5">
+
+<br><br>
+
+<label>Notes</label>
+<textarea id="notes"></textarea>
+
+<br><br>
+
+<h3>Psychological Index: <span id="preview">0.50</span></h3>
+
+<button id="saveBtn">Save Entry</button>
+<button id="exportBtn">Export CSV</button>
+
+<br><br>
+
+<a href="index.html">Back Home</a>
+
+<script src="js/engine.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    const mood = document.getElementById("mood");
+    const moodValue = document.getElementById("moodValue");
+    const energy = document.getElementById("energy");
+    const focus = document.getElementById("focus");
+    const discipline = document.getElementById("discipline");
+    const preview = document.getElementById("preview");
+
+    function updatePreview() {
+        moodValue.textContent = parseFloat(mood.value).toFixed(2);
+
+        const index = HopeEngine.calculateIndex(
+            parseFloat(mood.value),
+            parseFloat(energy.value),
+            parseFloat(focus.value),
+            parseFloat(discipline.value)
+        );
+
+        preview.textContent = index;
+    }
+
+    mood.addEventListener("input", updatePreview);
+    energy.addEventListener("input", updatePreview);
+    focus.addEventListener("input", updatePreview);
+    discipline.addEventListener("input", updatePreview);
+
+    document.getElementById("saveBtn").addEventListener("click", () => {
+
+        const index = HopeEngine.calculateIndex(
+            parseFloat(mood.value),
+            parseFloat(energy.value),
+            parseFloat(focus.value),
+            parseFloat(discipline.value)
+        );
+
+        const entry = {
+            id: crypto.randomUUID(),
+            timestamp: new Date().toISOString(),
+            entryType: document.getElementById("entryType").value,
+            mood: parseFloat(mood.value),
+            energy: parseFloat(energy.value),
+            focus: parseFloat(focus.value),
+            discipline: parseFloat(discipline.value),
+            weights: HopeEngine.getActiveWeights(),
+            psychologicalIndex: index,
+            notes: document.getElementById("notes").value
+        };
+
+        HopeEngine.saveEntry(entry);
+        alert("Entry Saved!");
+    });
+
+    document.getElementById("exportBtn").addEventListener("click", () => {
+        HopeEngine.exportCSV();
+    });
+
+    updatePreview();
+});
+</script>
+
+</body>
+</html>
