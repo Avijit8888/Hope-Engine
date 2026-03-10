@@ -3,209 +3,247 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hope Engine | Dashboard</title>
-<link rel="stylesheet" href="css/style.css">
+<title>Hope Engine | Home</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:#030508; --bg2:#07090e; --bg3:#0d1118;
+  --border:rgba(0,212,255,0.10); --borderG:rgba(0,212,255,0.06);
+  --gold:#c8a84b; --goldD:#8a6030;
+  --cyan:#00d4ff; --cyanD:#007a99;
+  --green:#00e676; --red:#ff1744;
+  --text:#c8d8e8; --textD:#6a8090;
+  --mono:'Share Tech Mono',monospace;
+  --display:'Bebas Neue',cursive;
+  --serif:'Crimson Pro',serif;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(0,212,255,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.018) 1px,transparent 1px);
+  background-size:48px 48px;}
+a{text-decoration:none;color:inherit;}
+
+/* NAVBAR */
+.navbar{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;
+  background:rgba(3,5,8,0.96);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 24px;justify-content:space-between;
+  backdrop-filter:blur(12px);}
+.nav-logo{font-family:var(--display);font-size:24px;letter-spacing:4px;
+  color:var(--cyan);text-shadow:0 0 24px rgba(0,212,255,0.5);}
+.nav-logo span{color:var(--gold);}
+.nav-links{display:flex;gap:4px;}
+.nav-link{font-size:9px;letter-spacing:2px;text-transform:uppercase;
+  padding:6px 14px;border-radius:2px;color:var(--textD);border:1px solid transparent;transition:all 0.2s;}
+.nav-link:hover{color:var(--text);border-color:var(--border);}
+.nav-link.active{color:var(--cyan);border-color:rgba(0,212,255,0.25);background:rgba(0,212,255,0.06);}
+.nav-status{font-size:9px;letter-spacing:2px;color:var(--green);display:flex;align-items:center;gap:6px;}
+.nav-status::before{content:'●';font-size:8px;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* BOTTOM NAV */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;height:54px;
+  background:rgba(3,5,8,0.97);border-top:1px solid var(--border);
+  justify-content:space-around;align-items:center;}
+.bottom-nav a{display:flex;flex-direction:column;align-items:center;gap:2px;
+  font-size:18px;opacity:0.45;cursor:pointer;transition:opacity 0.2s;}
+.bottom-nav a span{font-size:8px;letter-spacing:1px;color:var(--textD);font-family:var(--mono);}
+.bottom-nav a.active,.bottom-nav a:hover{opacity:1;}
+@media(max-width:768px){.navbar .nav-links{display:none;}.bottom-nav{display:flex;}body{padding-bottom:54px;}}
+
+/* PAGE */
+.page-wrap{padding-top:52px;min-height:100vh;position:relative;z-index:1;}
+.page-header{padding:28px 24px 0;display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.page-eyebrow{font-size:8px;letter-spacing:4px;color:var(--textD);text-transform:uppercase;margin-bottom:4px;}
+.page-title{font-family:var(--display);font-size:32px;letter-spacing:4px;color:var(--cyan);}
+.status-pill{font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:2px;
+  background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.2);}
+
+/* STAT GRID */
+.stat-grid{display:grid;gap:1px;background:var(--borderG);border:1px solid var(--border);}
+.stat-grid-4{grid-template-columns:repeat(4,1fr);}
+@media(max-width:768px){.stat-grid-4{grid-template-columns:repeat(2,1fr);}}
+.stat-card{background:var(--bg2);padding:20px 18px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.stat-card.c-cyan::before{background:var(--cyan);}
+.stat-card.c-gold::before{background:var(--gold);}
+.stat-card.c-green::before{background:var(--green);}
+.stat-card.c-red::before{background:var(--red);}
+.stat-label{font-size:8px;letter-spacing:3px;color:var(--textD);text-transform:uppercase;margin-bottom:8px;}
+.stat-value{font-family:var(--display);font-size:38px;letter-spacing:2px;line-height:1;}
+.stat-value.c-cyan{color:var(--cyan);text-shadow:0 0 20px rgba(0,212,255,0.25);}
+.stat-value.c-gold{color:var(--gold);}
+.stat-value.c-green{color:var(--green);text-shadow:0 0 20px rgba(0,230,118,0.25);}
+.stat-value.c-red{color:var(--red);}
+.stat-change{font-size:9px;margin-top:4px;}
+.stat-change.pos{color:var(--green);}
+.stat-change.neg{color:var(--red);}
+.stat-change.neu{color:var(--textD);}
+
+/* TWO COL */
+.two-col-row{display:grid;grid-template-columns:2fr 1fr;gap:1px;background:var(--borderG);border:1px solid var(--border);}
+@media(max-width:768px){.two-col-row{grid-template-columns:1fr;}}
+.panel{background:var(--bg2);padding:20px;}
+.panel-label{font-size:8px;letter-spacing:3px;color:var(--textD);text-transform:uppercase;margin-bottom:12px;}
+.phase-name{font-family:var(--display);font-size:22px;letter-spacing:2px;color:var(--gold);margin-bottom:4px;}
+.phase-desc{font-family:var(--serif);font-size:12px;color:var(--textD);font-style:italic;margin-bottom:14px;}
+.phase-bar{height:3px;background:rgba(255,255,255,0.05);border-radius:2px;margin-bottom:6px;}
+.phase-bar-fill{height:3px;border-radius:2px;background:linear-gradient(90deg,var(--goldD),var(--cyan));transition:width 1s ease;}
+.phase-pct{font-size:8px;letter-spacing:2px;color:var(--textD);}
+
+/* QUICK ACTIONS */
+.quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:12px 24px 24px;}
+@media(max-width:768px){.quick-actions{grid-template-columns:repeat(2,1fr);}}
+.quick-btn{background:var(--bg3);border:1px solid var(--border);padding:16px 12px;cursor:pointer;
+  border-radius:2px;text-align:center;transition:all 0.2s;display:block;}
+.quick-btn:hover{border-color:var(--cyan);background:rgba(0,212,255,0.05);transform:translateY(-2px);}
+.qb-icon{font-size:22px;margin-bottom:6px;}
+.qb-label{font-size:8px;letter-spacing:2px;color:var(--textD);text-transform:uppercase;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--cyanD);border-radius:2px;}
+</style>
 </head>
 <body>
 
-<!-- NAVBAR -->
 <nav class="navbar">
   <div class="nav-logo"><a href="index.html">HOPE<span>ENGINE</span></a></div>
   <div class="nav-links">
-    <a class="nav-link" href="index.html">Home</a>
+    <a class="nav-link active" href="index.html">Home</a>
     <a class="nav-link" href="input.html">Record</a>
-    <a class="nav-link active" href="dashboard.html">Dashboard</a>
+    <a class="nav-link" href="dashboard.html">Dashboard</a>
     <a class="nav-link" href="journal.html">Journal</a>
     <a class="nav-link" href="setting.html">Settings</a>
   </div>
   <div class="nav-status">LIVE</div>
 </nav>
 
-<!-- BOTTOM NAV -->
 <nav class="bottom-nav">
-  <a href="index.html">🏠<span>Home</span></a>
+  <a href="index.html" class="active">🏠<span>Home</span></a>
   <a href="input.html">➕<span>Record</span></a>
-  <a href="dashboard.html" class="active">📊<span>Dash</span></a>
+  <a href="dashboard.html">📊<span>Dash</span></a>
   <a href="journal.html">📖<span>Journal</span></a>
   <a href="setting.html">⚙<span>Settings</span></a>
 </nav>
 
-<!-- PAGE -->
 <div class="page-wrap">
-
   <div class="page-header">
     <div>
-      <div class="page-title">DASHBOARD</div>
-      <div class="page-sub">Brutal truth — your psychological market in full</div>
+      <div class="page-eyebrow">Psychological Terminal</div>
+      <div class="page-title">HOPE ENGINE</div>
     </div>
+    <div class="status-pill">TRACKING ACTIVE</div>
   </div>
 
-  <!-- TOP STATS -->
-  <div class="stat-grid stat-grid-5" style="margin:20px 24px 0;">
+  <div class="stat-grid stat-grid-4" style="margin:20px 24px 0;">
     <div class="stat-card c-cyan">
-      <div class="stat-label">Latest Index</div>
-      <div class="stat-value c-cyan" id="d-index">--</div>
-      <div class="stat-change neu" id="d-index-ch">--</div>
-    </div>
-    <div class="stat-card c-green">
-      <div class="stat-label">Simple Avg</div>
-      <div class="stat-value c-green" id="d-avg">--</div>
-      <div class="stat-change neu">all time</div>
+      <div class="stat-label">Today's Index</div>
+      <div class="stat-value c-cyan" id="home-today">--</div>
+      <div class="stat-change neu" id="home-today-sub">No close yet</div>
     </div>
     <div class="stat-card c-gold">
-      <div class="stat-label">Weighted Avg</div>
-      <div class="stat-value c-gold" id="d-wavg">--</div>
-      <div class="stat-change neu">recent bias</div>
+      <div class="stat-label">7-Day Average</div>
+      <div class="stat-value c-gold" id="home-avg">--</div>
+      <div class="stat-change neu" id="home-avg-sub">Not enough data</div>
+    </div>
+    <div class="stat-card c-green">
+      <div class="stat-label">Personal Best</div>
+      <div class="stat-value c-green" id="home-best">--</div>
+      <div class="stat-change pos" id="home-best-sub">--</div>
     </div>
     <div class="stat-card c-red">
-      <div class="stat-label">Volatility</div>
-      <div class="stat-value c-red" id="d-vol">--</div>
-      <div class="stat-change neu" id="d-vol-label">std deviation</div>
-    </div>
-    <div class="stat-card c-blue">
-      <div class="stat-label">Stability</div>
-      <div class="stat-value c-blue" id="d-stability">--</div>
-      <div class="stat-change neu" id="d-stab-label">consistency</div>
+      <div class="stat-label">Total Entries</div>
+      <div class="stat-value c-red" id="home-count">0</div>
+      <div class="stat-change neu">logged sessions</div>
     </div>
   </div>
 
-  <!-- CHART -->
-  <div class="dash-chart-wrap">
-    <div class="dash-chart-header">
-      <div class="dash-chart-title">Psychological Index — Historical</div>
-      <div class="timeframes">
-        <button class="tf-btn" onclick="setTimeframe(1, this)">1D</button>
-        <button class="tf-btn active" onclick="setTimeframe(7, this)">1W</button>
-        <button class="tf-btn" onclick="setTimeframe(30, this)">1M</button>
-        <button class="tf-btn" onclick="setTimeframe(365, this)">1Y</button>
-        <button class="tf-btn" onclick="setTimeframe(99999, this)">ALL</button>
-      </div>
+  <div class="two-col-row" style="margin:12px 24px 0;">
+    <div class="panel">
+      <div class="panel-label">14-Day Psychological Index</div>
+      <canvas id="homeChart" height="90"></canvas>
     </div>
-    <canvas id="dashChart" height="180"></canvas>
-  </div>
-
-  <!-- INSIGHTS ROW -->
-  <div class="stat-grid stat-grid-3" style="margin:12px 24px 24px;">
-    <div class="stat-card" style="background:var(--bg2);">
-      <div class="stat-label">Phase Detection</div>
-      <div class="insight-value" id="d-phase" style="color:var(--gold);font-family:var(--display);font-size:20px;letter-spacing:2px;">--</div>
-      <div class="insight-sub" id="d-phase-desc">--</div>
-    </div>
-    <div class="stat-card" style="background:var(--bg2);">
-      <div class="stat-label">Personal Best</div>
-      <div class="stat-value c-green" id="d-best">--</div>
-      <div class="insight-sub" id="d-best-date">--</div>
-    </div>
-    <div class="stat-card" style="background:var(--bg2);">
-      <div class="stat-label">Total Sessions</div>
-      <div class="stat-value c-cyan" id="d-total">--</div>
-      <div class="insight-sub" id="d-streak">--</div>
+    <div class="panel">
+      <div class="panel-label">Current Phase</div>
+      <div class="phase-name" id="home-phase">--</div>
+      <div class="phase-desc" id="home-phase-desc">Log entries to detect phase</div>
+      <div class="phase-bar"><div class="phase-bar-fill" id="home-phase-bar" style="width:0%"></div></div>
+      <div class="phase-pct" id="home-phase-pct">--</div>
     </div>
   </div>
 
+  <div class="quick-actions">
+    <a class="quick-btn" href="input.html"><div class="qb-icon">➕</div><div class="qb-label">Record Entry</div></a>
+    <a class="quick-btn" href="dashboard.html"><div class="qb-icon">📊</div><div class="qb-label">Dashboard</div></a>
+    <a class="quick-btn" href="journal.html"><div class="qb-icon">📖</div><div class="qb-label">Journal</div></a>
+    <a class="quick-btn" href="setting.html"><div class="qb-icon">⚙</div><div class="qb-label">Settings</div></a>
+  </div>
 </div>
 
-<script src="js/engine.js"></script>
 <script>
-let dashChartInst = null;
-let currentTF = 7;
+const HopeEngine = (() => {
+  const SK = "hope_entries", WK = "hope_weights";
+  function initW(){let w=JSON.parse(localStorage.getItem(WK));if(!w){w={mood:25,energy:25,focus:25,discipline:25};localStorage.setItem(WK,JSON.stringify(w));}return w;}
+  function getWeights(){return JSON.parse(localStorage.getItem(WK))||{mood:25,energy:25,focus:25,discipline:25};}
+  function setWeights(w){const t=w.mood+w.energy+w.focus+w.discipline;if(t!==100){alert("Weights must total 100%");return false;}localStorage.setItem(WK,JSON.stringify(w));return true;}
+  function getEntries(){return JSON.parse(localStorage.getItem(SK))||[];}
+  function saveEntry(e){const arr=getEntries();arr.push(e);localStorage.setItem(SK,JSON.stringify(arr));}
+  function calculateIndex(mood,energy,focus,discipline){const w=getWeights();return parseFloat(((mood*w.mood/100)+((energy/10)*w.energy/100)+((focus/10)*w.focus/100)+((discipline/10)*w.discipline/100)).toFixed(4));}
+  function getPhase(scores){if(!scores||scores.length<3)return{name:"UNKNOWN",desc:"Need more data",pct:0};const avg=scores.slice(-5).reduce((a,b)=>a+b,0)/Math.min(scores.length,5);if(avg>=0.65)return{name:"ACCUMULATION",desc:"Building energy for the next run",pct:Math.round(avg*100)};if(avg>=0.45)return{name:"CONSOLIDATION",desc:"Stable — holding ground",pct:Math.round(avg*100)};return{name:"DISTRIBUTION",desc:"Recovery phase — rest and reset",pct:Math.round(avg*100)};}
+  function getVolatility(s){if(s.length<2)return 0;const m=s.reduce((a,b)=>a+b,0)/s.length;return parseFloat(Math.sqrt(s.reduce((v,x)=>v+Math.pow(x-m,2),0)/s.length).toFixed(4));}
+  function getWeightedAvg(s){if(!s.length)return null;let ws=0,tw=0;s.forEach((v,i)=>{ws+=v*(i+1);tw+=(i+1);});return parseFloat((ws/tw).toFixed(4));}
+  function exportCSV(){const entries=getEntries();if(!entries.length){alert("No data to export.");return;}let csv="id,timestamp,entry_type,mood,energy,focus,discipline,weight_mood,weight_energy,weight_focus,weight_discipline,psychological_index,notes\n";entries.forEach(e=>{csv+=`${e.id},${e.timestamp},${e.entryType},${e.mood},${e.energy},${e.focus},${e.discipline},${e.weights.mood},${e.weights.energy},${e.weights.focus},${e.weights.discipline},${e.psychologicalIndex},"${(e.notes||'').replace(/"/g,'""')}"\n`;});const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download=`hope_engine_${new Date().toISOString().split('T')[0]}.csv`;a.click();}
+  initW();
+  return{getEntries,saveEntry,getWeights,setWeights,calculateIndex,getPhase,getVolatility,getWeightedAvg,exportCSV};
+})();
 
-function setTimeframe(days, btn) {
-  currentTF = days;
-  document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderDashboard();
-}
+document.addEventListener("DOMContentLoaded",()=>{
+  const entries=HopeEngine.getEntries();
+  const closes=entries.filter(e=>e.entryType==='daily_close');
+  const today=new Date().toISOString().split('T')[0];
+  const todayEntry=closes.find(e=>e.timestamp.startsWith(today));
+  const last7=closes.slice(-7).map(e=>e.psychologicalIndex);
+  const allScores=entries.map(e=>e.psychologicalIndex);
 
-function renderDashboard() {
-  const entries    = HopeEngine.getEntries();
-  const allScores  = entries.map(e => e.psychologicalIndex);
+  if(todayEntry){
+    document.getElementById('home-today').textContent=todayEntry.psychologicalIndex.toFixed(2);
+    document.getElementById('home-today-sub').textContent='daily close recorded';
+    document.getElementById('home-today-sub').className='stat-change pos';
+  }
+  if(last7.length){
+    document.getElementById('home-avg').textContent=(last7.reduce((a,b)=>a+b,0)/last7.length).toFixed(2);
+    document.getElementById('home-avg-sub').textContent=`${last7.length} closes`;
+  }
+  if(allScores.length){
+    document.getElementById('home-best').textContent=Math.max(...allScores).toFixed(2);
+    document.getElementById('home-best-sub').textContent='personal best';
+  }
+  document.getElementById('home-count').textContent=entries.length;
 
-  if (!entries.length) return;
+  const phase=HopeEngine.getPhase(allScores);
+  document.getElementById('home-phase').textContent=phase.name;
+  document.getElementById('home-phase-desc').textContent=phase.desc;
+  document.getElementById('home-phase-bar').style.width=phase.pct+'%';
+  document.getElementById('home-phase-pct').textContent=phase.pct+'% intensity';
 
-  // Filter by timeframe
-  const cutoff  = new Date();
-  cutoff.setDate(cutoff.getDate() - currentTF);
-  const filtered = entries.filter(e => currentTF >= 99999 || new Date(e.timestamp) >= cutoff);
-  const filteredScores = filtered.map(e => e.psychologicalIndex);
-
-  const latest = entries[entries.length - 1];
-  const prev   = entries[entries.length - 2];
-
-  const avg   = (allScores.reduce((a,b)=>a+b,0) / allScores.length).toFixed(2);
-  const wavg  = HopeEngine.getWeightedAvg(allScores);
-  const vol   = HopeEngine.getVolatility(allScores);
-  const phase = HopeEngine.getPhase(allScores);
-  const best  = Math.max(...allScores);
-  const bestEntry = entries.find(e => e.psychologicalIndex === best);
-
-  // Fill stats
-  document.getElementById('d-index').textContent  = latest.psychologicalIndex.toFixed(2);
-  document.getElementById('d-avg').textContent     = avg;
-  document.getElementById('d-wavg').textContent    = wavg ? wavg.toFixed(2) : '--';
-  document.getElementById('d-vol').textContent     = vol.toFixed(2);
-  document.getElementById('d-vol-label').textContent  = vol < 0.1 ? 'low — controlled' : vol < 0.2 ? 'moderate' : 'high — unstable';
-  document.getElementById('d-stability').textContent  = vol < 0.1 ? 'HIGH' : vol < 0.2 ? 'MED' : 'LOW';
-  document.getElementById('d-stab-label').textContent = vol < 0.1 ? 'very consistent' : vol < 0.2 ? 'some variance' : 'needs work';
-  document.getElementById('d-phase').textContent      = phase.name;
-  document.getElementById('d-phase-desc').textContent = phase.desc;
-  document.getElementById('d-best').textContent       = best.toFixed(2);
-  document.getElementById('d-best-date').textContent  = bestEntry ? new Date(bestEntry.timestamp).toLocaleDateString() : '--';
-  document.getElementById('d-total').textContent      = entries.length;
-
-  const closes = entries.filter(e => e.entryType === 'daily_close');
-  document.getElementById('d-streak').textContent = `${closes.length} daily closes`;
-
-  // Change indicator
-  const change = prev ? (latest.psychologicalIndex - prev.psychologicalIndex) : 0;
-  const chEl   = document.getElementById('d-index-ch');
-  chEl.textContent = (change >= 0 ? '▲ +' : '▼ ') + change.toFixed(2);
-  chEl.className   = 'stat-change ' + (change >= 0 ? 'pos' : 'neg');
-
-  // Chart
-  const chartLabels = filtered.map(e => {
-    const d = new Date(e.timestamp);
-    return `${d.getMonth()+1}/${d.getDate()}`;
-  });
-
-  if (dashChartInst) dashChartInst.destroy();
-  dashChartInst = new Chart(document.getElementById('dashChart'), {
-    type: 'line',
-    data: {
-      labels: chartLabels.length ? chartLabels : ['--'],
-      datasets: [
-        {
-          label: 'Psych Index',
-          data: filteredScores.length ? filteredScores : [0],
-          borderColor: '#00d4ff',
-          backgroundColor: 'rgba(0,212,255,0.06)',
-          tension: 0.4, fill: true,
-          pointRadius: 4, pointBackgroundColor: '#00d4ff', borderWidth: 2
-        },
-        {
-          label: 'Baseline 0.5',
-          data: Array(chartLabels.length || 1).fill(0.5),
-          borderColor: 'rgba(200,168,75,0.3)',
-          borderDash: [5,5], fill: false, pointRadius: 0, borderWidth: 1
-        }
-      ]
+  const last14=entries.slice(-14);
+  new Chart(document.getElementById('homeChart'),{
+    type:'line',
+    data:{
+      labels:last14.length?last14.map(e=>{const d=new Date(e.timestamp);return`${d.getMonth()+1}/${d.getDate()}`;}):['--'],
+      datasets:[{data:last14.length?last14.map(e=>e.psychologicalIndex):[0],borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,0.06)',tension:0.4,fill:true,pointRadius:3,pointBackgroundColor:'#00d4ff',borderWidth:2}]
     },
-    options: {
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { ticks: { color:'#4a6070', font:{size:9} }, grid: { color:'rgba(255,255,255,0.03)' } },
-        y: { ticks: { color:'#4a6070', font:{size:9} }, grid: { color:'rgba(255,255,255,0.03)' }, min:0, max:1 }
-      },
-      animation: { duration: 600 }
-    }
+    options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#4a6070',font:{size:9}},grid:{color:'rgba(255,255,255,0.03)'}},y:{ticks:{color:'#4a6070',font:{size:9}},grid:{color:'rgba(255,255,255,0.03)'},min:0,max:1}}}
   });
-}
-
-document.addEventListener("DOMContentLoaded", renderDashboard);
+});
 </script>
-
 </body>
 </html>
 ```
+
+---
+
+Say **next** for `input.html` 👇
