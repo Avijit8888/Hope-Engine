@@ -1,73 +1,194 @@
-<header class="navbar">
-    <div class="logo">Hope Engine</div>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="input.html">Record</a>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="journal.html">Journal</a>
-        <a href="settings.html">Settings</a>
-    </nav>
-</header>
+**File 5 of 6 — `setting.html`**
+
+```html
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hope Engine | Settings</title>
 <link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<header class="navbar">
-    <div class="logo">Hope Engine</div>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="input.html">Record</a>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="journal.html">Journal</a>
-        <a href="settings.html">Settings</a>
-    </nav>
-</header>
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-logo"><a href="index.html">HOPE<span>ENGINE</span></a></div>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">Home</a>
+    <a class="nav-link" href="input.html">Record</a>
+    <a class="nav-link" href="dashboard.html">Dashboard</a>
+    <a class="nav-link" href="journal.html">Journal</a>
+    <a class="nav-link active" href="setting.html">Settings</a>
+  </div>
+  <div class="nav-status">LIVE</div>
+</nav>
 
-<div class="container">
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <a href="index.html">🏠<span>Home</span></a>
+  <a href="input.html">➕<span>Record</span></a>
+  <a href="dashboard.html">📊<span>Dash</span></a>
+  <a href="journal.html">📖<span>Journal</span></a>
+  <a href="setting.html" class="active">⚙<span>Settings</span></a>
+</nav>
 
-    <h1>System Settings</h1>
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
-    <h3>Weight Customization</h3>
-    <p>Mood %</p>
-    <input type="number" id="weightMood">
+<!-- PAGE -->
+<div class="page-wrap">
 
-    <p>Energy %</p>
-    <input type="number" id="weightEnergy">
+  <div class="page-header">
+    <div>
+      <div class="page-title">SETTINGS</div>
+      <div class="page-sub">Customize your psychological index weights</div>
+    </div>
+  </div>
 
-    <p>Focus %</p>
-    <input type="number" id="weightFocus">
+  <div class="settings-grid">
 
-    <p>Discipline %</p>
-    <input type="number" id="weightDiscipline">
+    <!-- WEIGHTS CARD -->
+    <div class="settings-card">
+      <div class="settings-card-title">Weight Customization</div>
+      <p class="settings-hint">All four weights must total exactly 100%</p>
 
-    <button id="saveWeights">Save Weights</button>
+      <div class="weight-field">
+        <div class="weight-label">
+          Mood %
+          <span class="wl-val" id="wl-mood">25</span>
+        </div>
+        <input type="number" id="wMood" min="0" max="100" value="25" oninput="updateWeightTotal()">
+      </div>
 
-    <hr>
+      <div class="weight-field">
+        <div class="weight-label">
+          Energy %
+          <span class="wl-val" id="wl-energy">25</span>
+        </div>
+        <input type="number" id="wEnergy" min="0" max="100" value="25" oninput="updateWeightTotal()">
+      </div>
 
-    <button id="exportFull">Export Full Data</button>
+      <div class="weight-field">
+        <div class="weight-label">
+          Focus %
+          <span class="wl-val" id="wl-focus">25</span>
+        </div>
+        <input type="number" id="wFocus" min="0" max="100" value="25" oninput="updateWeightTotal()">
+      </div>
 
+      <div class="weight-field">
+        <div class="weight-label">
+          Discipline %
+          <span class="wl-val" id="wl-disc">25</span>
+        </div>
+        <input type="number" id="wDisc" min="0" max="100" value="25" oninput="updateWeightTotal()">
+      </div>
+
+      <div class="weight-total">
+        <span class="wt-label">Total</span>
+        <span class="wt-num ok" id="weightTotal">100</span>
+      </div>
+
+      <button class="settings-btn cyan-btn" onclick="saveWeights()">Save Weights</button>
+    </div>
+
+    <!-- DATA CARD -->
+    <div class="settings-card">
+      <div class="settings-card-title">Data Management</div>
+
+      <div class="data-stat">
+        <div class="data-stat-label">Total Entries</div>
+        <div class="data-stat-val" id="s-total">0</div>
+      </div>
+      <div class="data-stat">
+        <div class="data-stat-label">Daily Closes</div>
+        <div class="data-stat-val" id="s-closes">0</div>
+      </div>
+      <div class="data-stat">
+        <div class="data-stat-label">Intraday</div>
+        <div class="data-stat-val" id="s-intraday">0</div>
+      </div>
+      <div class="data-stat" style="border:none;">
+        <div class="data-stat-label">First Entry</div>
+        <div class="data-stat-date" id="s-first">--</div>
+      </div>
+
+      <button class="settings-btn gold-btn" onclick="HopeEngine.exportCSV()" style="margin-top:20px;">
+        ↓ Export Full Data
+      </button>
+      <button class="settings-btn danger-btn" onclick="confirmClear()">
+        ⚠ Clear All Data
+      </button>
+    </div>
+
+  </div>
 </div>
 
-<nav class="bottom-nav">
-    <a href="index.html">🏠</a>
-    <a href="input.html">➕</a>
-    <a href="dashboard.html">📊</a>
-    <a href="journal.html">📖</a>
-    <a href="settings.html">⚙</a>
-</nav>
-
 <script src="js/engine.js"></script>
+<script>
+function loadSettings() {
+  const w = HopeEngine.getWeights();
+  document.getElementById('wMood').value   = w.mood;
+  document.getElementById('wEnergy').value = w.energy;
+  document.getElementById('wFocus').value  = w.focus;
+  document.getElementById('wDisc').value   = w.discipline;
+  updateWeightTotal();
+
+  const entries = HopeEngine.getEntries();
+  document.getElementById('s-total').textContent    = entries.length;
+  document.getElementById('s-closes').textContent   = entries.filter(e => e.entryType === 'daily_close').length;
+  document.getElementById('s-intraday').textContent = entries.filter(e => e.entryType === 'intraday').length;
+  document.getElementById('s-first').textContent    = entries.length
+    ? new Date(entries[0].timestamp).toLocaleDateString()
+    : '--';
+}
+
+function updateWeightTotal() {
+  const m = parseInt(document.getElementById('wMood').value)   || 0;
+  const e = parseInt(document.getElementById('wEnergy').value) || 0;
+  const f = parseInt(document.getElementById('wFocus').value)  || 0;
+  const d = parseInt(document.getElementById('wDisc').value)   || 0;
+  const total = m + e + f + d;
+
+  const el = document.getElementById('weightTotal');
+  el.textContent = total;
+  el.className   = 'wt-num ' + (total === 100 ? 'ok' : 'bad');
+
+  document.getElementById('wl-mood').textContent   = m;
+  document.getElementById('wl-energy').textContent = e;
+  document.getElementById('wl-focus').textContent  = f;
+  document.getElementById('wl-disc').textContent   = d;
+}
+
+function saveWeights() {
+  const w = {
+    mood:       parseInt(document.getElementById('wMood').value)   || 0,
+    energy:     parseInt(document.getElementById('wEnergy').value) || 0,
+    focus:      parseInt(document.getElementById('wFocus').value)  || 0,
+    discipline: parseInt(document.getElementById('wDisc').value)   || 0
+  };
+  if (HopeEngine.setWeights(w)) showToast("Weights saved successfully", "success");
+}
+
+function confirmClear() {
+  if (confirm("Are you sure? This will permanently delete ALL your data.")) {
+    localStorage.removeItem("hope_entries");
+    showToast("All data cleared", "error");
+    loadSettings();
+  }
+}
+
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+document.addEventListener("DOMContentLoaded", loadSettings);
+</script>
+
 </body>
 </html>
-
-<nav class="bottom-nav">
-    <a href="index.html">🏠</a>
-    <a href="input.html">➕</a>
-    <a href="dashboard.html">📊</a>
-    <a href="journal.html">📖</a>
-    <a href="settings.html">⚙</a>
-</nav>
