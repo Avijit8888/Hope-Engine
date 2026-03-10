@@ -1,243 +1,214 @@
-/* =============================
-   GLOBAL STYLES
-============================= */
+**File 3 of 6 — `dashboard.html`**
 
-* {
-    box-sizing: border-box;
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hope Engine | Dashboard</title>
+<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-logo"><a href="index.html">HOPE<span>ENGINE</span></a></div>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">Home</a>
+    <a class="nav-link" href="input.html">Record</a>
+    <a class="nav-link active" href="dashboard.html">Dashboard</a>
+    <a class="nav-link" href="journal.html">Journal</a>
+    <a class="nav-link" href="setting.html">Settings</a>
+  </div>
+  <div class="nav-status">LIVE</div>
+</nav>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <a href="index.html">🏠<span>Home</span></a>
+  <a href="input.html">➕<span>Record</span></a>
+  <a href="dashboard.html" class="active">📊<span>Dash</span></a>
+  <a href="journal.html">📖<span>Journal</span></a>
+  <a href="setting.html">⚙<span>Settings</span></a>
+</nav>
+
+<!-- PAGE -->
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">DASHBOARD</div>
+      <div class="page-sub">Brutal truth — your psychological market in full</div>
+    </div>
+  </div>
+
+  <!-- TOP STATS -->
+  <div class="stat-grid stat-grid-5" style="margin:20px 24px 0;">
+    <div class="stat-card c-cyan">
+      <div class="stat-label">Latest Index</div>
+      <div class="stat-value c-cyan" id="d-index">--</div>
+      <div class="stat-change neu" id="d-index-ch">--</div>
+    </div>
+    <div class="stat-card c-green">
+      <div class="stat-label">Simple Avg</div>
+      <div class="stat-value c-green" id="d-avg">--</div>
+      <div class="stat-change neu">all time</div>
+    </div>
+    <div class="stat-card c-gold">
+      <div class="stat-label">Weighted Avg</div>
+      <div class="stat-value c-gold" id="d-wavg">--</div>
+      <div class="stat-change neu">recent bias</div>
+    </div>
+    <div class="stat-card c-red">
+      <div class="stat-label">Volatility</div>
+      <div class="stat-value c-red" id="d-vol">--</div>
+      <div class="stat-change neu" id="d-vol-label">std deviation</div>
+    </div>
+    <div class="stat-card c-blue">
+      <div class="stat-label">Stability</div>
+      <div class="stat-value c-blue" id="d-stability">--</div>
+      <div class="stat-change neu" id="d-stab-label">consistency</div>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="dash-chart-wrap">
+    <div class="dash-chart-header">
+      <div class="dash-chart-title">Psychological Index — Historical</div>
+      <div class="timeframes">
+        <button class="tf-btn" onclick="setTimeframe(1, this)">1D</button>
+        <button class="tf-btn active" onclick="setTimeframe(7, this)">1W</button>
+        <button class="tf-btn" onclick="setTimeframe(30, this)">1M</button>
+        <button class="tf-btn" onclick="setTimeframe(365, this)">1Y</button>
+        <button class="tf-btn" onclick="setTimeframe(99999, this)">ALL</button>
+      </div>
+    </div>
+    <canvas id="dashChart" height="180"></canvas>
+  </div>
+
+  <!-- INSIGHTS ROW -->
+  <div class="stat-grid stat-grid-3" style="margin:12px 24px 24px;">
+    <div class="stat-card" style="background:var(--bg2);">
+      <div class="stat-label">Phase Detection</div>
+      <div class="insight-value" id="d-phase" style="color:var(--gold);font-family:var(--display);font-size:20px;letter-spacing:2px;">--</div>
+      <div class="insight-sub" id="d-phase-desc">--</div>
+    </div>
+    <div class="stat-card" style="background:var(--bg2);">
+      <div class="stat-label">Personal Best</div>
+      <div class="stat-value c-green" id="d-best">--</div>
+      <div class="insight-sub" id="d-best-date">--</div>
+    </div>
+    <div class="stat-card" style="background:var(--bg2);">
+      <div class="stat-label">Total Sessions</div>
+      <div class="stat-value c-cyan" id="d-total">--</div>
+      <div class="insight-sub" id="d-streak">--</div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/engine.js"></script>
+<script>
+let dashChartInst = null;
+let currentTF = 7;
+
+function setTimeframe(days, btn) {
+  currentTF = days;
+  document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDashboard();
 }
 
-body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #0b0b0f, #11111a);
-    color: #ffffff;
-}
+function renderDashboard() {
+  const entries    = HopeEngine.getEntries();
+  const allScores  = entries.map(e => e.psychologicalIndex);
 
-/* =============================
-   CONTAINER
-============================= */
+  if (!entries.length) return;
 
-.container {
-    max-width: 1100px;
-    margin: auto;
-    padding: 30px 20px;
-}
+  // Filter by timeframe
+  const cutoff  = new Date();
+  cutoff.setDate(cutoff.getDate() - currentTF);
+  const filtered = entries.filter(e => currentTF >= 99999 || new Date(e.timestamp) >= cutoff);
+  const filteredScores = filtered.map(e => e.psychologicalIndex);
 
-/* =============================
-   HEADER
-============================= */
+  const latest = entries[entries.length - 1];
+  const prev   = entries[entries.length - 2];
 
-header {
-    text-align: center;
-    margin-bottom: 50px;
-}
+  const avg   = (allScores.reduce((a,b)=>a+b,0) / allScores.length).toFixed(2);
+  const wavg  = HopeEngine.getWeightedAvg(allScores);
+  const vol   = HopeEngine.getVolatility(allScores);
+  const phase = HopeEngine.getPhase(allScores);
+  const best  = Math.max(...allScores);
+  const bestEntry = entries.find(e => e.psychologicalIndex === best);
 
-h1 {
-    color: #d4af37;
-    font-weight: 600;
-    font-size: 2.2rem;
-    margin-bottom: 10px;
-}
+  // Fill stats
+  document.getElementById('d-index').textContent  = latest.psychologicalIndex.toFixed(2);
+  document.getElementById('d-avg').textContent     = avg;
+  document.getElementById('d-wavg').textContent    = wavg ? wavg.toFixed(2) : '--';
+  document.getElementById('d-vol').textContent     = vol.toFixed(2);
+  document.getElementById('d-vol-label').textContent  = vol < 0.1 ? 'low — controlled' : vol < 0.2 ? 'moderate' : 'high — unstable';
+  document.getElementById('d-stability').textContent  = vol < 0.1 ? 'HIGH' : vol < 0.2 ? 'MED' : 'LOW';
+  document.getElementById('d-stab-label').textContent = vol < 0.1 ? 'very consistent' : vol < 0.2 ? 'some variance' : 'needs work';
+  document.getElementById('d-phase').textContent      = phase.name;
+  document.getElementById('d-phase-desc').textContent = phase.desc;
+  document.getElementById('d-best').textContent       = best.toFixed(2);
+  document.getElementById('d-best-date').textContent  = bestEntry ? new Date(bestEntry.timestamp).toLocaleDateString() : '--';
+  document.getElementById('d-total').textContent      = entries.length;
 
-.quote {
-    font-style: italic;
-    opacity: 0.8;
-    font-size: 0.95rem;
-}
+  const closes = entries.filter(e => e.entryType === 'daily_close');
+  document.getElementById('d-streak').textContent = `${closes.length} daily closes`;
 
-/* =============================
-   JOURNAL SECTION
-============================= */
+  // Change indicator
+  const change = prev ? (latest.psychologicalIndex - prev.psychologicalIndex) : 0;
+  const chEl   = document.getElementById('d-index-ch');
+  chEl.textContent = (change >= 0 ? '▲ +' : '▼ ') + change.toFixed(2);
+  chEl.className   = 'stat-change ' + (change >= 0 ? 'pos' : 'neg');
 
-.journal h2 {
-    margin-bottom: 20px;
-    font-weight: 500;
-}
+  // Chart
+  const chartLabels = filtered.map(e => {
+    const d = new Date(e.timestamp);
+    return `${d.getMonth()+1}/${d.getDate()}`;
+  });
 
-.journal textarea {
-    width: 100%;
-    height: 140px;
-    padding: 15px;
-    border-radius: 12px;
-    border: none;
-    margin-bottom: 25px;
-    background: #15151d;
-    color: white;
-    font-size: 0.95rem;
-    resize: none;
-    transition: 0.3s ease;
-}
-
-.journal textarea:focus {
-    outline: none;
-    box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
-}
-
-/* =============================
-   SLIDERS
-============================= */
-
-.sliders {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.slider-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 0.9rem;
-}
-
-input[type="range"] {
-    width: 100%;
-    appearance: none;
-    height: 6px;
-    border-radius: 5px;
-    background: #2a2a35;
-    outline: none;
-}
-
-/* Slider Thumb */
-input[type="range"]::-webkit-slider-thumb {
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #d4af37;
-    cursor: pointer;
-}
-
-input[type="range"]::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #d4af37;
-    cursor: pointer;
-}
-
-/* =============================
-   BUTTON
-============================= */
-
-button {
-    margin-top: 25px;
-    padding: 14px;
-    width: 100%;
-    border: none;
-    border-radius: 10px;
-    background: #d4af37;
-    color: #000;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: 0.3s ease;
-}
-
-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 18px rgba(212, 175, 55, 0.4);
-}
-
-/* =============================
-   DASHBOARD LINK
-============================= */
-
-.dashboard-link {
-    display: block;
-    margin-top: 25px;
-    text-align: center;
-    color: #d4af37;
-    text-decoration: none;
-    font-size: 0.95rem;
-    transition: 0.3s ease;
-}
-
-.dashboard-link:hover {
-    opacity: 0.8;
-}
-
-/* =============================
-   TABLET RESPONSIVE
-============================= */
-
-@media (min-width: 768px) {
-    .sliders {
-        flex-direction: row;
-        justify-content: space-between;
+  if (dashChartInst) dashChartInst.destroy();
+  dashChartInst = new Chart(document.getElementById('dashChart'), {
+    type: 'line',
+    data: {
+      labels: chartLabels.length ? chartLabels : ['--'],
+      datasets: [
+        {
+          label: 'Psych Index',
+          data: filteredScores.length ? filteredScores : [0],
+          borderColor: '#00d4ff',
+          backgroundColor: 'rgba(0,212,255,0.06)',
+          tension: 0.4, fill: true,
+          pointRadius: 4, pointBackgroundColor: '#00d4ff', borderWidth: 2
+        },
+        {
+          label: 'Baseline 0.5',
+          data: Array(chartLabels.length || 1).fill(0.5),
+          borderColor: 'rgba(200,168,75,0.3)',
+          borderDash: [5,5], fill: false, pointRadius: 0, borderWidth: 1
+        }
+      ]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color:'#4a6070', font:{size:9} }, grid: { color:'rgba(255,255,255,0.03)' } },
+        y: { ticks: { color:'#4a6070', font:{size:9} }, grid: { color:'rgba(255,255,255,0.03)' }, min:0, max:1 }
+      },
+      animation: { duration: 600 }
     }
-
-    .slider-group {
-        width: 30%;
-    }
+  });
 }
 
-/* =============================
-   DESKTOP PREMIUM LAYOUT
-============================= */
+document.addEventListener("DOMContentLoaded", renderDashboard);
+</script>
 
-@media (min-width: 992px) {
-
-    .journal {
-        display: grid;
-        grid-template-columns: 1.5fr 1fr;
-        gap: 50px;
-        align-items: start;
-    }
-
-    .journal textarea {
-        height: 220px;
-    }
-
-    .sliders {
-        flex-direction: column;
-    }
-
-    button {
-        width: 100%;
-    }
-}
-/* =============================
-   DASHBOARD
-============================= */
-
-.dashboard {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-}
-
-.card {
-    background: #15151d;
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
-}
-
-.card h3 {
-    color: #d4af37;
-    margin-bottom: 10px;
-}
-
-.card p {
-    font-size: 1.4rem;
-    font-weight: 600;
-}
-
-.chart-container {
-    background: #15151d;
-    padding: 20px;
-    border-radius: 12px;
-}
-
-@media (min-width: 992px) {
-    .dashboard {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 30px;
-    }
-
-    .chart-container {
-        grid-column: span 3;
-    }
-}
+</body>
+</html>
+```
