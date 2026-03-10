@@ -1,4 +1,4 @@
-**File 3 of 6 — `dashboard.html`**
+**`dashboard.html`** — paste and replace entirely
 
 ```html
 <!DOCTYPE html>
@@ -7,13 +7,92 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hope Engine | Dashboard</title>
-<link rel="stylesheet" href="css/style.css">
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:#030508; --bg2:#07090e; --bg3:#0d1118;
+  --border:rgba(0,212,255,0.10); --borderG:rgba(0,212,255,0.06);
+  --gold:#c8a84b; --goldD:#8a6030;
+  --cyan:#00d4ff; --cyanD:#007a99;
+  --green:#00e676; --red:#ff1744;
+  --text:#c8d8e8; --textD:#6a8090;
+  --mono:'Share Tech Mono',monospace;
+  --display:'Bebas Neue',cursive;
+  --serif:'Crimson Pro',serif;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(0,212,255,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.018) 1px,transparent 1px);
+  background-size:48px 48px;}
+a{text-decoration:none;color:inherit;}
+
+/* NAVBAR */
+.navbar{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;background:rgba(3,5,8,0.96);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;justify-content:space-between;backdrop-filter:blur(12px);}
+.nav-logo{font-family:var(--display);font-size:24px;letter-spacing:4px;color:var(--cyan);text-shadow:0 0 24px rgba(0,212,255,0.5);}
+.nav-logo span{color:var(--gold);}
+.nav-links{display:flex;gap:4px;}
+.nav-link{font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;border-radius:2px;color:var(--textD);border:1px solid transparent;transition:all 0.2s;}
+.nav-link:hover{color:var(--text);border-color:var(--border);}
+.nav-link.active{color:var(--cyan);border-color:rgba(0,212,255,0.25);background:rgba(0,212,255,0.06);}
+.nav-status{font-size:9px;letter-spacing:2px;color:var(--green);display:flex;align-items:center;gap:6px;}
+.nav-status::before{content:'●';font-size:8px;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* BOTTOM NAV */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;height:54px;background:rgba(3,5,8,0.97);border-top:1px solid var(--border);justify-content:space-around;align-items:center;}
+.bottom-nav a{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:18px;opacity:0.45;cursor:pointer;transition:opacity 0.2s;}
+.bottom-nav a span{font-size:8px;letter-spacing:1px;color:var(--textD);font-family:var(--mono);}
+.bottom-nav a.active,.bottom-nav a:hover{opacity:1;}
+@media(max-width:768px){.navbar .nav-links{display:none;}.bottom-nav{display:flex;}body{padding-bottom:54px;}}
+
+/* PAGE */
+.page-wrap{padding-top:52px;min-height:100vh;position:relative;z-index:1;}
+.page-header{padding:28px 24px 0;display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.page-title{font-family:var(--display);font-size:32px;letter-spacing:4px;color:var(--cyan);}
+.page-sub{font-family:var(--serif);font-size:13px;color:var(--textD);font-style:italic;margin-top:2px;}
+
+/* STAT GRID */
+.stat-grid{display:grid;gap:1px;background:var(--borderG);border:1px solid var(--border);}
+.stat-grid-5{grid-template-columns:repeat(5,1fr);}
+.stat-grid-3{grid-template-columns:repeat(3,1fr);}
+@media(max-width:768px){.stat-grid-5{grid-template-columns:repeat(2,1fr);}.stat-grid-3{grid-template-columns:1fr;}}
+.stat-card{background:var(--bg2);padding:20px 18px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.stat-card.c-cyan::before{background:var(--cyan);}
+.stat-card.c-gold::before{background:var(--gold);}
+.stat-card.c-green::before{background:var(--green);}
+.stat-card.c-red::before{background:var(--red);}
+.stat-card.c-blue::before{background:#448aff;}
+.stat-label{font-size:8px;letter-spacing:3px;color:var(--textD);text-transform:uppercase;margin-bottom:8px;}
+.stat-value{font-family:var(--display);font-size:38px;letter-spacing:2px;line-height:1;}
+.stat-value.c-cyan{color:var(--cyan);text-shadow:0 0 20px rgba(0,212,255,0.25);}
+.stat-value.c-gold{color:var(--gold);}
+.stat-value.c-green{color:var(--green);text-shadow:0 0 20px rgba(0,230,118,0.25);}
+.stat-value.c-red{color:var(--red);}
+.stat-value.c-blue{color:#448aff;}
+.stat-change{font-size:9px;margin-top:4px;}
+.stat-change.pos{color:var(--green);}
+.stat-change.neg{color:var(--red);}
+.stat-change.neu{color:var(--textD);}
+.insight-sub{font-family:var(--serif);font-size:11px;color:var(--textD);font-style:italic;margin-top:4px;}
+
+/* CHART */
+.dash-chart-wrap{background:var(--bg2);border:1px solid var(--border);padding:20px;margin:12px 24px 0;}
+.dash-chart-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;}
+.dash-chart-title{font-size:9px;letter-spacing:3px;color:var(--cyan);text-transform:uppercase;}
+.timeframes{display:flex;gap:6px;}
+.tf-btn{font-size:8px;letter-spacing:1px;padding:4px 10px;border:1px solid var(--border);color:var(--textD);background:none;cursor:pointer;border-radius:2px;font-family:var(--mono);transition:all 0.2s;}
+.tf-btn:hover,.tf-btn.active{background:rgba(0,212,255,0.08);color:var(--cyan);border-color:rgba(0,212,255,0.3);}
+
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--cyanD);border-radius:2px;}
+</style>
 </head>
 <body>
 
-<!-- NAVBAR -->
 <nav class="navbar">
   <div class="nav-logo"><a href="index.html">HOPE<span>ENGINE</span></a></div>
   <div class="nav-links">
@@ -26,7 +105,6 @@
   <div class="nav-status">LIVE</div>
 </nav>
 
-<!-- BOTTOM NAV -->
 <nav class="bottom-nav">
   <a href="index.html">🏠<span>Home</span></a>
   <a href="input.html">➕<span>Record</span></a>
@@ -35,9 +113,7 @@
   <a href="setting.html">⚙<span>Settings</span></a>
 </nav>
 
-<!-- PAGE -->
 <div class="page-wrap">
-
   <div class="page-header">
     <div>
       <div class="page-title">DASHBOARD</div>
@@ -79,21 +155,21 @@
     <div class="dash-chart-header">
       <div class="dash-chart-title">Psychological Index — Historical</div>
       <div class="timeframes">
-        <button class="tf-btn" onclick="setTimeframe(1, this)">1D</button>
-        <button class="tf-btn active" onclick="setTimeframe(7, this)">1W</button>
-        <button class="tf-btn" onclick="setTimeframe(30, this)">1M</button>
-        <button class="tf-btn" onclick="setTimeframe(365, this)">1Y</button>
-        <button class="tf-btn" onclick="setTimeframe(99999, this)">ALL</button>
+        <button class="tf-btn" onclick="setTimeframe(1,this)">1D</button>
+        <button class="tf-btn active" onclick="setTimeframe(7,this)">1W</button>
+        <button class="tf-btn" onclick="setTimeframe(30,this)">1M</button>
+        <button class="tf-btn" onclick="setTimeframe(365,this)">1Y</button>
+        <button class="tf-btn" onclick="setTimeframe(99999,this)">ALL</button>
       </div>
     </div>
     <canvas id="dashChart" height="180"></canvas>
   </div>
 
-  <!-- INSIGHTS ROW -->
+  <!-- INSIGHTS -->
   <div class="stat-grid stat-grid-3" style="margin:12px 24px 24px;">
     <div class="stat-card" style="background:var(--bg2);">
       <div class="stat-label">Phase Detection</div>
-      <div class="insight-value" id="d-phase" style="color:var(--gold);font-family:var(--display);font-size:20px;letter-spacing:2px;">--</div>
+      <div id="d-phase" style="font-family:var(--display);font-size:20px;letter-spacing:2px;color:var(--gold);">--</div>
       <div class="insight-sub" id="d-phase-desc">--</div>
     </div>
     <div class="stat-card" style="background:var(--bg2);">
@@ -107,108 +183,107 @@
       <div class="insight-sub" id="d-streak">--</div>
     </div>
   </div>
-
 </div>
 
-<script src="js/engine.js"></script>
 <script>
-let dashChartInst = null;
-let currentTF = 7;
+// ── ENGINE ──────────────────────────────────────────────────
+const HopeEngine=(()=>{
+  const SK="hope_entries",WK="hope_weights";
+  function initW(){let w=JSON.parse(localStorage.getItem(WK));if(!w){w={mood:25,energy:25,focus:25,discipline:25};localStorage.setItem(WK,JSON.stringify(w));}return w;}
+  function getWeights(){return JSON.parse(localStorage.getItem(WK))||{mood:25,energy:25,focus:25,discipline:25};}
+  function getEntries(){return JSON.parse(localStorage.getItem(SK))||[];}
+  function getVolatility(s){if(s.length<2)return 0;const m=s.reduce((a,b)=>a+b,0)/s.length;return parseFloat(Math.sqrt(s.reduce((v,x)=>v+Math.pow(x-m,2),0)/s.length).toFixed(4));}
+  function getWeightedAvg(s){if(!s.length)return null;let ws=0,tw=0;s.forEach((v,i)=>{ws+=v*(i+1);tw+=(i+1);});return parseFloat((ws/tw).toFixed(4));}
+  function getPhase(scores){if(!scores||scores.length<3)return{name:"UNKNOWN",desc:"Need more data",pct:0};const avg=scores.slice(-5).reduce((a,b)=>a+b,0)/Math.min(scores.length,5);if(avg>=0.65)return{name:"ACCUMULATION",desc:"Building energy for the next run",pct:Math.round(avg*100)};if(avg>=0.45)return{name:"CONSOLIDATION",desc:"Stable — holding ground",pct:Math.round(avg*100)};return{name:"DISTRIBUTION",desc:"Recovery phase — rest and reset",pct:Math.round(avg*100)};}
+  initW();
+  return{getEntries,getWeights,getVolatility,getWeightedAvg,getPhase};
+})();
 
-function setTimeframe(days, btn) {
-  currentTF = days;
-  document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+// ── DASHBOARD ───────────────────────────────────────────────
+let dashChartInst=null;
+let currentTF=7;
+
+function setTimeframe(days,btn){
+  currentTF=days;
+  document.querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   renderDashboard();
 }
 
-function renderDashboard() {
-  const entries    = HopeEngine.getEntries();
-  const allScores  = entries.map(e => e.psychologicalIndex);
+function renderDashboard(){
+  const entries=HopeEngine.getEntries();
+  const allScores=entries.map(e=>e.psychologicalIndex);
 
-  if (!entries.length) return;
+  if(!entries.length){
+    ['d-index','d-avg','d-wavg','d-vol','d-stability','d-phase','d-phase-desc',
+     'd-best','d-best-date','d-total','d-streak','d-index-ch','d-vol-label','d-stab-label'
+    ].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='--';});
+    return;
+  }
 
-  // Filter by timeframe
-  const cutoff  = new Date();
-  cutoff.setDate(cutoff.getDate() - currentTF);
-  const filtered = entries.filter(e => currentTF >= 99999 || new Date(e.timestamp) >= cutoff);
-  const filteredScores = filtered.map(e => e.psychologicalIndex);
+  const cutoff=new Date();
+  cutoff.setDate(cutoff.getDate()-currentTF);
+  const filtered=entries.filter(e=>currentTF>=99999||new Date(e.timestamp)>=cutoff);
+  const filteredScores=filtered.map(e=>e.psychologicalIndex);
 
-  const latest = entries[entries.length - 1];
-  const prev   = entries[entries.length - 2];
+  const latest=entries[entries.length-1];
+  const prev=entries[entries.length-2];
+  const avg=(allScores.reduce((a,b)=>a+b,0)/allScores.length).toFixed(2);
+  const wavg=HopeEngine.getWeightedAvg(allScores);
+  const vol=HopeEngine.getVolatility(allScores);
+  const phase=HopeEngine.getPhase(allScores);
+  const best=Math.max(...allScores);
+  const bestEntry=entries.find(e=>e.psychologicalIndex===best);
+  const closes=entries.filter(e=>e.entryType==='daily_close');
 
-  const avg   = (allScores.reduce((a,b)=>a+b,0) / allScores.length).toFixed(2);
-  const wavg  = HopeEngine.getWeightedAvg(allScores);
-  const vol   = HopeEngine.getVolatility(allScores);
-  const phase = HopeEngine.getPhase(allScores);
-  const best  = Math.max(...allScores);
-  const bestEntry = entries.find(e => e.psychologicalIndex === best);
+  document.getElementById('d-index').textContent=latest.psychologicalIndex.toFixed(2);
+  document.getElementById('d-avg').textContent=avg;
+  document.getElementById('d-wavg').textContent=wavg?wavg.toFixed(2):'--';
+  document.getElementById('d-vol').textContent=vol.toFixed(2);
+  document.getElementById('d-vol-label').textContent=vol<0.1?'low — controlled':vol<0.2?'moderate':'high — unstable';
+  document.getElementById('d-stability').textContent=vol<0.1?'HIGH':vol<0.2?'MED':'LOW';
+  document.getElementById('d-stab-label').textContent=vol<0.1?'very consistent':vol<0.2?'some variance':'needs work';
+  document.getElementById('d-phase').textContent=phase.name;
+  document.getElementById('d-phase-desc').textContent=phase.desc;
+  document.getElementById('d-best').textContent=best.toFixed(2);
+  document.getElementById('d-best-date').textContent=bestEntry?new Date(bestEntry.timestamp).toLocaleDateString():'--';
+  document.getElementById('d-total').textContent=entries.length;
+  document.getElementById('d-streak').textContent=`${closes.length} daily closes`;
 
-  // Fill stats
-  document.getElementById('d-index').textContent  = latest.psychologicalIndex.toFixed(2);
-  document.getElementById('d-avg').textContent     = avg;
-  document.getElementById('d-wavg').textContent    = wavg ? wavg.toFixed(2) : '--';
-  document.getElementById('d-vol').textContent     = vol.toFixed(2);
-  document.getElementById('d-vol-label').textContent  = vol < 0.1 ? 'low — controlled' : vol < 0.2 ? 'moderate' : 'high — unstable';
-  document.getElementById('d-stability').textContent  = vol < 0.1 ? 'HIGH' : vol < 0.2 ? 'MED' : 'LOW';
-  document.getElementById('d-stab-label').textContent = vol < 0.1 ? 'very consistent' : vol < 0.2 ? 'some variance' : 'needs work';
-  document.getElementById('d-phase').textContent      = phase.name;
-  document.getElementById('d-phase-desc').textContent = phase.desc;
-  document.getElementById('d-best').textContent       = best.toFixed(2);
-  document.getElementById('d-best-date').textContent  = bestEntry ? new Date(bestEntry.timestamp).toLocaleDateString() : '--';
-  document.getElementById('d-total').textContent      = entries.length;
+  const change=prev?(latest.psychologicalIndex-prev.psychologicalIndex):0;
+  const chEl=document.getElementById('d-index-ch');
+  chEl.textContent=(change>=0?'▲ +':'▼ ')+change.toFixed(2);
+  chEl.className='stat-change '+(change>=0?'pos':'neg');
 
-  const closes = entries.filter(e => e.entryType === 'daily_close');
-  document.getElementById('d-streak').textContent = `${closes.length} daily closes`;
+  const chartLabels=filtered.map(e=>{const d=new Date(e.timestamp);return`${d.getMonth()+1}/${d.getDate()}`;});
 
-  // Change indicator
-  const change = prev ? (latest.psychologicalIndex - prev.psychologicalIndex) : 0;
-  const chEl   = document.getElementById('d-index-ch');
-  chEl.textContent = (change >= 0 ? '▲ +' : '▼ ') + change.toFixed(2);
-  chEl.className   = 'stat-change ' + (change >= 0 ? 'pos' : 'neg');
-
-  // Chart
-  const chartLabels = filtered.map(e => {
-    const d = new Date(e.timestamp);
-    return `${d.getMonth()+1}/${d.getDate()}`;
-  });
-
-  if (dashChartInst) dashChartInst.destroy();
-  dashChartInst = new Chart(document.getElementById('dashChart'), {
-    type: 'line',
-    data: {
-      labels: chartLabels.length ? chartLabels : ['--'],
-      datasets: [
-        {
-          label: 'Psych Index',
-          data: filteredScores.length ? filteredScores : [0],
-          borderColor: '#00d4ff',
-          backgroundColor: 'rgba(0,212,255,0.06)',
-          tension: 0.4, fill: true,
-          pointRadius: 4, pointBackgroundColor: '#00d4ff', borderWidth: 2
-        },
-        {
-          label: 'Baseline 0.5',
-          data: Array(chartLabels.length || 1).fill(0.5),
-          borderColor: 'rgba(200,168,75,0.3)',
-          borderDash: [5,5], fill: false, pointRadius: 0, borderWidth: 1
-        }
+  if(dashChartInst)dashChartInst.destroy();
+  dashChartInst=new Chart(document.getElementById('dashChart'),{
+    type:'line',
+    data:{
+      labels:chartLabels.length?chartLabels:['--'],
+      datasets:[
+        {label:'Psych Index',data:filteredScores.length?filteredScores:[0],borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,0.06)',tension:0.4,fill:true,pointRadius:4,pointBackgroundColor:'#00d4ff',borderWidth:2},
+        {label:'Baseline',data:Array(chartLabels.length||1).fill(0.5),borderColor:'rgba(200,168,75,0.3)',borderDash:[5,5],fill:false,pointRadius:0,borderWidth:1}
       ]
     },
-    options: {
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { ticks: { color:'#4a6070', font:{size:9} }, grid: { color:'rgba(255,255,255,0.03)' } },
-        y: { ticks: { color:'#4a6070', font:{size:9} }, grid: { color:'rgba(255,255,255,0.03)' }, min:0, max:1 }
+    options:{
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{color:'#4a6070',font:{size:9}},grid:{color:'rgba(255,255,255,0.03)'}},
+        y:{ticks:{color:'#4a6070',font:{size:9}},grid:{color:'rgba(255,255,255,0.03)'},min:0,max:1}
       },
-      animation: { duration: 600 }
+      animation:{duration:600}
     }
   });
 }
 
-document.addEventListener("DOMContentLoaded", renderDashboard);
+document.addEventListener("DOMContentLoaded",renderDashboard);
 </script>
-
 </body>
 </html>
 ```
+
+---
+
+Say **next** for `journal.html` 👇
