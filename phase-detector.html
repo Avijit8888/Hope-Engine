@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Market Phase Detector — Live</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:#030508; --bg2:#07090e; --bg3:#0d1118;
+  --border:rgba(0,212,255,0.10); --borderG:rgba(0,212,255,0.05);
+  --gold:#c8a84b; --cyan:#00d4ff; --cyanD:#007a99;
+  --green:#00e676; --red:#ff1744; --yellow:#ffd600;
+  --text:#c8d8e8; --textD:#6a8090; --textDD:#3a5060;
+  --mono:'Share Tech Mono',monospace;
+  --display:'Bebas Neue',cursive;
+  --serif:'Crimson Pro',serif;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(0,212,255,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.015) 1px,transparent 1px);
+  background-size:48px 48px;}
+::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--cyanD);}
+
+/* HEADER */
+.header{position:relative;z-index:10;padding:18px 28px;border-bottom:1px solid var(--border);
+  background:rgba(3,5,8,0.97);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.logo{font-family:var(--display);font-size:24px;letter-spacing:5px;color:var(--cyan);text-shadow:0 0 20px rgba(0,212,255,0.3);}
+.logo span{color:var(--gold);}
+.logo-sub{font-size:8px;letter-spacing:3px;color:var(--textD);margin-top:2px;}
+.hpills{display:flex;gap:8px;align-items:center;}
+.pill{font-size:8px;letter-spacing:2px;padding:4px 10px;border-radius:2px;}
+.pill-green{color:var(--green);border:1px solid rgba(0,230,118,0.2);background:rgba(0,230,118,0.05);display:flex;align-items:center;gap:5px;}
+.pill-gold{color:var(--gold);border:1px solid rgba(200,168,75,0.2);background:rgba(200,168,75,0.05);}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+
+/* LAYOUT */
+.main{position:relative;z-index:1;display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 77px);}
+@media(max-width:860px){.main{grid-template-columns:1fr;}}
+
+/* LEFT */
+.left{border-right:1px solid var(--border);background:rgba(7,9,14,0.9);display:flex;flex-direction:column;overflow-y:auto;}
+.stitle{font-size:7px;letter-spacing:3px;color:var(--textD);text-transform:uppercase;padding:12px 16px 9px;border-bottom:1px solid var(--borderG);}
+
+/* MARKETS */
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:10px 12px;}
+.mbtn{background:var(--bg3);border:1px solid var(--border);padding:7px 5px;cursor:pointer;border-radius:2px;text-align:center;transition:all 0.2s;font-family:var(--mono);}
+.mbtn:hover{border-color:var(--cyan);background:rgba(0,212,255,0.04);}
+.mbtn.active{border-color:var(--cyan);background:rgba(0,212,255,0.08);}
+.mn{font-size:10px;letter-spacing:1px;color:var(--text);}
+.mbtn.active .mn{color:var(--cyan);}
+.mt{font-size:7px;color:var(--textD);margin-top:1px;}
+
+/* TF */
+.tfrow{display:flex;flex-wrap:wrap;gap:4px;padding:9px 12px 10px;}
+.tfbtn{font-size:8px;letter-spacing:1px;padding:5px 9px;border:1px solid var(--border);color:var(--textD);background:none;cursor:pointer;border-radius:2px;font-family:var(--mono);transition:all 0.2s;}
+.tfbtn:hover,.tfbtn.active{background:rgba(0,212,255,0.07);color:var(--cyan);border-color:rgba(0,212,255,0.3);}
+
+/* CONTROLS */
+.ctrl{padding:4px 12px 10px;display:flex;align-items:center;gap:8px;}
+.clabel{font-size:8px;letter-spacing:2px;color:var(--textD);white-space:nowrap;}
+select.csel{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 8px;font-family:var(--mono);font-size:10px;border-radius:2px;outline:none;cursor:pointer;flex:1;}
+select.csel:focus{border-color:var(--cyan);}
+
+/* BUTTONS */
+.fbtn{margin:0 12px 8px;width:calc(100% - 24px);padding:12px;
+  background:linear-gradient(135deg,rgba(0,212,255,0.14),rgba(0,212,255,0.05));
+  border:1px solid var(--cyan);color:var(--cyan);font-family:var(--mono);
+  font-size:10px;letter-spacing:4px;cursor:pointer;border-radius:2px;transition:all 0.3s;}
+.fbtn:disabled{opacity:0.35;cursor:not-allowed;}
+.fbtn:hover:not(:disabled){box-shadow:0 0 24px rgba(0,212,255,0.18);}
+.abtn{margin:0 12px 8px;width:calc(100% - 24px);padding:10px;background:rgba(200,168,75,0.07);border:1px solid rgba(200,168,75,0.28);color:var(--gold);font-family:var(--mono);font-size:9px;letter-spacing:3px;cursor:pointer;border-radius:2px;transition:all 0.2s;}
+.abtn:hover{background:rgba(200,168,75,0.13);}
+
+.divider{display:flex;align-items:center;gap:8px;padding:2px 12px 8px;font-size:8px;letter-spacing:2px;color:var(--textDD);}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--borderG);}
+
+.csv-area{padding:2px 12px 8px;}
+.flabel{font-size:7px;letter-spacing:3px;color:var(--textD);margin-bottom:5px;}
+textarea.csvbox{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px;font-family:var(--mono);font-size:10px;border-radius:2px;resize:none;outline:none;height:90px;line-height:1.6;}
+textarea.csvbox:focus{border-color:var(--cyan);}
+.chint{font-size:8px;color:var(--textDD);margin-top:4px;}
+.chint span{color:var(--textD);}
+
+/* STATUS LOG — key debug area */
+.log-box{margin:0 12px 12px;padding:10px 12px;background:var(--bg3);border:1px solid var(--borderG);border-radius:2px;font-size:9px;line-height:1.9;min-height:48px;max-height:90px;overflow-y:auto;}
+.log-box .ok{color:var(--green);}
+.log-box .err{color:var(--red);}
+.log-box .info{color:var(--cyan);}
+.log-box .warn{color:var(--yellow);}
+
+/* RIGHT */
+.right{display:flex;flex-direction:column;overflow:hidden;}
+
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;opacity:0.45;}
+.empty-icon{font-size:44px;margin-bottom:14px;filter:grayscale(1);}
+.empty-title{font-family:var(--display);font-size:22px;letter-spacing:4px;color:var(--textD);margin-bottom:6px;}
+.empty-sub{font-family:var(--serif);font-size:13px;color:var(--textDD);font-style:italic;}
+
+.loading{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;display:none;}
+.ring{width:44px;height:44px;border:2px solid var(--borderG);border-top-color:var(--cyan);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ltxt{font-size:9px;letter-spacing:4px;color:var(--textD);}
+
+/* RESULTS */
+.results{display:none;flex-direction:column;height:100%;}
+
+/* PHASE BANNER */
+.pbanner{padding:16px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;border-bottom:1px solid var(--border);}
+.peyebrow{font-size:7px;letter-spacing:4px;color:var(--textD);margin-bottom:5px;}
+.pname{font-family:var(--display);font-size:44px;letter-spacing:5px;line-height:1;}
+.pname.accum{color:#00e676;text-shadow:0 0 30px rgba(0,230,118,0.25);}
+.pname.consolid{color:#ffd600;text-shadow:0 0 30px rgba(255,214,0,0.25);}
+.pname.distrib{color:#ff1744;text-shadow:0 0 30px rgba(255,23,68,0.25);}
+.pmeta{display:flex;align-items:center;gap:8px;margin-top:7px;flex-wrap:wrap;}
+.cbar-wrap{width:90px;height:3px;background:rgba(255,255,255,0.05);border-radius:2px;}
+.cbar{height:3px;border-radius:2px;width:0%;transition:width 1s ease;}
+.cbar.accum{background:#00e676;} .cbar.consolid{background:#ffd600;} .cbar.distrib{background:#ff1744;}
+.cpct{font-size:9px;letter-spacing:2px;color:var(--textD);}
+.mtag{font-size:8px;letter-spacing:2px;color:var(--cyan);padding:2px 7px;border:1px solid rgba(0,212,255,0.2);border-radius:2px;}
+.pright{text-align:right;}
+.rlabel{font-size:7px;letter-spacing:3px;color:var(--textD);margin-bottom:5px;}
+.rval{font-family:var(--display);font-size:20px;letter-spacing:3px;}
+.rval.buy{color:var(--green);} .rval.sell{color:var(--red);} .rval.wait{color:var(--yellow);}
+.rsub{font-family:var(--serif);font-size:11px;color:var(--textD);font-style:italic;margin-top:3px;}
+.plive{font-size:9px;color:var(--textD);margin-top:5px;}
+.plive span{color:var(--cyan);font-family:var(--display);font-size:15px;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--borderG);border-bottom:1px solid var(--border);}
+@media(max-width:1050px){.stats{grid-template-columns:repeat(3,1fr);}}
+.sc{background:var(--bg2);padding:11px 13px;position:relative;}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.sc.cc::before{background:var(--cyan);} .sc.cg::before{background:var(--gold);}
+.sc.cgr::before{background:var(--green);} .sc.cr::before{background:var(--red);} .sc.cy::before{background:var(--yellow);}
+.sclabel{font-size:7px;letter-spacing:3px;color:var(--textD);margin-bottom:4px;}
+.scval{font-family:var(--display);font-size:22px;letter-spacing:1px;line-height:1;}
+.scval.cc{color:var(--cyan);} .scval.cg{color:var(--gold);} .scval.cgr{color:var(--green);}
+.scval.cr{color:var(--red);} .scval.cy{color:var(--yellow);}
+.scsub{font-size:8px;color:var(--textD);margin-top:2px;}
+
+/* CHART AREA */
+.chart-area{flex:1;padding:14px 18px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;}
+.cwrap{background:var(--bg2);border:1px solid var(--border);padding:13px;}
+.cheader{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;flex-wrap:wrap;gap:6px;}
+.ctitle{font-size:8px;letter-spacing:3px;color:var(--cyan);}
+.zlegend{display:flex;gap:7px;flex-wrap:wrap;}
+.ztag{font-size:7px;letter-spacing:1px;padding:2px 6px;border-radius:2px;}
+.ztag.accum{background:rgba(0,230,118,0.09);color:#00e676;border:1px solid rgba(0,230,118,0.18);}
+.ztag.consolid{background:rgba(255,214,0,0.09);color:#ffd600;border:1px solid rgba(255,214,0,0.18);}
+.ztag.distrib{background:rgba(255,23,68,0.09);color:#ff1744;border:1px solid rgba(255,23,68,0.18);}
+
+/* INDICATORS */
+.indrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--borderG);border:1px solid var(--border);}
+@media(max-width:860px){.indrow{grid-template-columns:1fr;}}
+.icard{background:var(--bg2);padding:11px 13px;}
+.ilabel{font-size:7px;letter-spacing:3px;color:var(--textD);margin-bottom:6px;}
+.ival{font-family:var(--display);font-size:19px;letter-spacing:1px;margin-bottom:2px;}
+.ibar-wrap{height:3px;background:rgba(255,255,255,0.04);border-radius:2px;margin-top:5px;}
+.ibar{height:3px;border-radius:2px;transition:width 1s ease;}
+
+/* REC CARD */
+.reccard{background:var(--bg2);border:1px solid var(--border);padding:16px;}
+.reccardtitle{font-size:8px;letter-spacing:3px;color:var(--gold);margin-bottom:11px;padding-bottom:9px;border-bottom:1px solid var(--borderG);}
+.recgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:700px){.recgrid{grid-template-columns:1fr;}}
+.rilabel{font-size:7px;letter-spacing:3px;color:var(--textD);margin-bottom:4px;}
+.rival{font-family:var(--serif);font-size:13px;color:var(--text);line-height:1.5;}
+.rival.hi{color:var(--cyan);} .rival.warn{color:var(--yellow);}
+
+/* EXPORT */
+.exprow{display:flex;gap:7px;padding:12px 18px;border-top:1px solid var(--border);background:rgba(3,5,8,0.85);flex-wrap:wrap;}
+.ebtn{padding:7px 14px;font-family:var(--mono);font-size:8px;letter-spacing:2px;cursor:pointer;border-radius:2px;transition:all 0.2s;}
+.ebtn.ecsv{border:1px solid rgba(200,168,75,0.28);color:var(--gold);background:rgba(200,168,75,0.05);}
+.ebtn.ecsv:hover{background:rgba(200,168,75,0.11);}
+.ebtn.etxt{border:1px solid var(--border);color:var(--textD);background:none;}
+.ebtn.etxt:hover{border-color:var(--cyan);color:var(--cyan);}
+.ebtn.erst{border:1px solid rgba(255,23,68,0.18);color:var(--red);background:none;margin-left:auto;}
+.ebtn.erst:hover{background:rgba(255,23,68,0.07);}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(18px);
+  background:var(--bg2);border:1px solid var(--border);color:var(--text);
+  padding:9px 22px;border-radius:2px;font-size:11px;opacity:0;transition:all 0.3s;z-index:999;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.ok{border-color:rgba(0,230,118,0.35);color:var(--green);}
+.toast.er{border-color:rgba(255,23,68,0.35);color:var(--red);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.results>*{animation:fadeUp 0.35s ease both;}
+.results>*:nth-child(2){animation-delay:.05s;}
+.results>*:nth-child(3){animation-delay:.1s;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="logo">PHASE<span>DETECT</span> <span style="font-size:13px;color:var(--green);letter-spacing:2px;">LIVE</span></div>
+    <div class="logo-sub">Market Phase Detector — Forex · Crypto · Indices · Gold</div>
+  </div>
+  <div class="hpills">
+    <div class="pill pill-gold">TWELVE DATA</div>
+    <div class="pill pill-green"><div class="dot"></div>LIVE</div>
+  </div>
+</div>
+
+<div class="main">
+  <!-- LEFT -->
+  <div class="left">
+    <div class="stitle">Select Market</div>
+    <div class="mgrid">
+      <div class="mbtn active" onclick="selMkt(this,'EUR/USD')"><div class="mn">EUR/USD</div><div class="mt">Forex</div></div>
+      <div class="mbtn" onclick="selMkt(this,'GBP/USD')"><div class="mn">GBP/USD</div><div class="mt">Forex</div></div>
+      <div class="mbtn" onclick="selMkt(this,'USD/JPY')"><div class="mn">USD/JPY</div><div class="mt">Forex</div></div>
+      <div class="mbtn" onclick="selMkt(this,'USD/CHF')"><div class="mn">USD/CHF</div><div class="mt">Forex</div></div>
+      <div class="mbtn" onclick="selMkt(this,'AUD/USD')"><div class="mn">AUD/USD</div><div class="mt">Forex</div></div>
+      <div class="mbtn" onclick="selMkt(this,'USD/CAD')"><div class="mn">USD/CAD</div><div class="mt">Forex</div></div>
+      <div class="mbtn" onclick="selMkt(this,'XAU/USD')"><div class="mn">XAU/USD</div><div class="mt">Gold</div></div>
+      <div class="mbtn" onclick="selMkt(this,'XAG/USD')"><div class="mn">XAG/USD</div><div class="mt">Silver</div></div>
+      <div class="mbtn" onclick="selMkt(this,'BTC/USD')"><div class="mn">BTC/USD</div><div class="mt">Crypto</div></div>
+      <div class="mbtn" onclick="selMkt(this,'ETH/USD')"><div class="mn">ETH/USD</div><div class="mt">Crypto</div></div>
+      <div class="mbtn" onclick="selMkt(this,'IXIC')"><div class="mn">NAS 100</div><div class="mt">Index</div></div>
+      <div class="mbtn" onclick="selMkt(this,'SPX')"><div class="mn">SPX 500</div><div class="mt">Index</div></div>
+    </div>
+
+    <div class="stitle">Timeframe</div>
+    <div class="tfrow">
+      <button class="tfbtn" onclick="selTF(this,'5min')">M5</button>
+      <button class="tfbtn" onclick="selTF(this,'15min')">M15</button>
+      <button class="tfbtn" onclick="selTF(this,'30min')">M30</button>
+      <button class="tfbtn" onclick="selTF(this,'1h')">H1</button>
+      <button class="tfbtn active" onclick="selTF(this,'4h')">H4</button>
+      <button class="tfbtn" onclick="selTF(this,'1day')">Daily</button>
+      <button class="tfbtn" onclick="selTF(this,'1week')">Weekly</button>
+    </div>
+
+    <div class="ctrl">
+      <div class="clabel">Candles</div>
+      <select class="csel" id="candleCount">
+        <option value="50">50</option>
+        <option value="100" selected>100</option>
+        <option value="200">200</option>
+        <option value="500">500</option>
+      </select>
+    </div>
+
+    <button class="fbtn" id="fetchBtn" onclick="fetchLive()">⚡ FETCH LIVE DATA</button>
+
+    <div class="divider">or paste csv</div>
+
+    <div class="csv-area">
+      <div class="flabel">Paste CSV (date,open,high,low,close)</div>
+      <textarea class="csvbox" id="csvInput" placeholder="2024-01-01,1.1050,1.1080,1.1020,1.1065&#10;2024-01-02,1.1065,1.1100,1.1040,1.1090&#10;..."></textarea>
+      <div class="chint">Min <span>20 candles</span> for accurate detection</div>
+    </div>
+    <button class="abtn" onclick="analyzeCSV()">▶ ANALYZE PASTED DATA</button>
+
+    <!-- STATUS LOG -->
+    <div class="log-box" id="logBox">
+      <span class="info">» Ready. Select market and click Fetch Live Data.</span>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="empty" id="emptyState">
+      <div class="empty-icon">📡</div>
+      <div class="empty-title">AWAITING DATA</div>
+      <div class="empty-sub">Select market · Choose timeframe<br>Click ⚡ Fetch Live Data</div>
+    </div>
+
+    <div class="loading" id="loadingState">
+      <div class="ring"></div>
+      <div class="ltxt">FETCHING LIVE DATA</div>
+    </div>
+
+    <div class="results" id="results">
+      <div class="pbanner">
+        <div>
+          <div class="peyebrow">Detected Market Phase</div>
+          <div class="pname" id="pName">--</div>
+          <div class="pmeta">
+            <div class="cbar-wrap"><div class="cbar" id="cBar"></div></div>
+            <div class="cpct" id="cPct">--</div>
+            <div class="mtag" id="mTag">--</div>
+          </div>
+          <div class="plive">Close: <span id="latestPrice">--</span></div>
+        </div>
+        <div class="pright">
+          <div class="rlabel">Recommendation</div>
+          <div class="rval" id="recVal">--</div>
+          <div class="rsub" id="recSub">--</div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="sc cc"><div class="sclabel">Candles</div><div class="scval cc" id="sCandles">--</div><div class="scsub">loaded</div></div>
+        <div class="sc cg"><div class="sclabel">Range</div><div class="scval cg" id="sRange">--</div><div class="scsub">H-L</div></div>
+        <div class="sc cgr"><div class="sclabel">Trend</div><div class="scval" id="sTrend">--</div><div class="scsub" id="sTrendSub">--</div></div>
+        <div class="sc cr"><div class="sclabel">Volatility</div><div class="scval cr" id="sVol">--</div><div class="scsub">ATR%</div></div>
+        <div class="sc cy"><div class="sclabel">Momentum</div><div class="scval" id="sMom">--</div><div class="scsub" id="sMomSub">--</div></div>
+      </div>
+
+      <div class="chart-area">
+        <div class="cwrap">
+          <div class="cheader">
+            <div class="ctitle" id="cTitle">Chart</div>
+            <div class="zlegend">
+              <span class="ztag accum">Accumulation</span>
+              <span class="ztag consolid">Consolidation</span>
+              <span class="ztag distrib">Distribution</span>
+            </div>
+          </div>
+          <canvas id="priceChart" height="155"></canvas>
+        </div>
+
+        <div class="indrow">
+          <div class="icard">
+            <div class="ilabel">RSI (14)</div>
+            <div class="ival" id="iRSI" style="color:var(--cyan)">--</div>
+            <div style="font-size:8px;color:var(--textD)" id="iRSIsub">--</div>
+            <div class="ibar-wrap"><div class="ibar" id="iRSIbar" style="width:0%;background:var(--cyan)"></div></div>
+          </div>
+          <div class="icard">
+            <div class="ilabel">EMA Spread 20/50</div>
+            <div class="ival" id="iEMA" style="color:var(--gold)">--</div>
+            <div style="font-size:8px;color:var(--textD)" id="iEMAsub">--</div>
+            <div class="ibar-wrap"><div class="ibar" id="iEMAbar" style="width:0%;background:var(--gold)"></div></div>
+          </div>
+          <div class="icard">
+            <div class="ilabel">Body Signal</div>
+            <div class="ival" id="iBody" style="color:var(--green)">--</div>
+            <div style="font-size:8px;color:var(--textD)" id="iBodysub">--</div>
+            <div class="ibar-wrap"><div class="ibar" id="iBodybar" style="width:0%;background:var(--green)"></div></div>
+          </div>
+        </div>
+
+        <div class="reccard">
+          <div class="reccardtitle">Trading Recommendation</div>
+          <div class="recgrid">
+            <div><div class="rilabel">Signal</div><div class="rival hi" id="rcSignal">--</div></div>
+            <div><div class="rilabel">Bias</div><div class="rival" id="rcBias">--</div></div>
+            <div><div class="rilabel">Key Level</div><div class="rival" id="rcLevel">--</div></div>
+            <div><div class="rilabel">Risk Warning</div><div class="rival warn" id="rcRisk">--</div></div>
+            <div style="grid-column:1/-1">
+              <div class="rilabel">Strategy Note</div>
+              <div class="rival" id="rcNote" style="font-family:var(--serif);font-style:italic;font-size:14px;color:var(--textD)">--</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="exprow">
+        <button class="ebtn ecsv" onclick="exportCSV()">↓ CSV</button>
+        <button class="ebtn etxt" onclick="exportTXT()">↓ Report</button>
+        <button class="ebtn erst" onclick="resetAll()">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────
+const API_KEY = '6b45e5257244e7bbf17072662755bbf';
+
+// Multiple proxy options — tries each in order until one works
+const PROXIES = [
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+];
+
+let state = { market:'EUR/USD', tf:'4h', candles:[], result:null };
+let chartInst = null;
+
+// ── SELECTORS ─────────────────────────────────────────────────
+function selMkt(el, m) {
+  document.querySelectorAll('.mbtn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active'); state.market = m;
+}
+function selTF(el, tf) {
+  document.querySelectorAll('.tfbtn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active'); state.tf = tf;
+}
+
+// ── FETCH LIVE ────────────────────────────────────────────────
+async function fetchLive() {
+  const count = document.getElementById('candleCount').value;
+  const btn   = document.getElementById('fetchBtn');
+  btn.disabled = true; btn.textContent = '⏳ FETCHING...';
+  showLoad();
+  log(`<span class="info">» Fetching ${state.market} ${state.tf} — ${count} candles</span>`);
+
+  const targetURL = `https://api.twelvedata.com/time_series?symbol=${encodeURIComponent(state.market)}&interval=${state.tf}&outputsize=${count}&apikey=${API_KEY}&format=JSON`;
+
+  let data = null;
+  let worked = false;
+
+  // Try 1: Direct call
+  try {
+    log(`<span class="info">» Attempt 1: Direct...</span>`);
+    const r = await fetchWithTimeout(targetURL, 8000);
+    const text = await r.text();
+    data = JSON.parse(text);
+    if (data.code || data.status === 'error') throw new Error(data.message || 'API error');
+    worked = true;
+    log(`<span class="ok">✓ Direct fetch succeeded</span>`);
+  } catch(e) {
+    log(`<span class="warn">» Direct blocked (${e.message.substring(0,40)}) — trying proxies...</span>`);
+  }
+
+  // Try proxies in sequence
+  if (!worked) {
+    for (let i = 0; i < PROXIES.length; i++) {
+      try {
+        const proxyURL = PROXIES[i](targetURL);
+        log(`<span class="info">» Proxy ${i+1}: ${proxyURL.substring(0,50)}...</span>`);
+        const r = await fetchWithTimeout(proxyURL, 10000);
+        const text = await r.text();
+        // allorigins sometimes wraps in {contents:...}
+        let parsed;
+        try { parsed = JSON.parse(text); } catch(pe) { throw new Error('Invalid JSON'); }
+        if (parsed.contents) parsed = JSON.parse(parsed.contents);
+        if (parsed.code || parsed.status === 'error') throw new Error(parsed.message || 'API error');
+        data = parsed; worked = true;
+        log(`<span class="ok">✓ Proxy ${i+1} succeeded</span>`);
+        break;
+      } catch(pe) {
+        log(`<span class="warn">» Proxy ${i+1} failed: ${pe.message.substring(0,40)}</span>`);
+      }
+    }
+  }
+
+  if (!worked || !data) {
+    log(`<span class="err">✗ All attempts failed. Use CSV paste instead.</span>`);
+    hideLoad(); btn.disabled=false; btn.textContent='⚡ FETCH LIVE DATA';
+    showToast('All fetch attempts failed — paste CSV manually','er');
+    return;
+  }
+
+  // Parse
+  try {
+    if (!data.values || !Array.isArray(data.values)) throw new Error('No values array in response');
+    const candles = data.values.reverse().map(v => ({
+      date: v.datetime, open: +v.open, high: +v.high, low: +v.low, close: +v.close
+    }));
+    if (candles.length === 0) throw new Error('Empty candles array');
+    state.candles = candles;
+    log(`<span class="ok">✓ ${candles.length} candles parsed — running detector...</span>`);
+    runDetection(candles);
+  } catch(e) {
+    log(`<span class="err">✗ Parse error: ${e.message}</span>`);
+    hideLoad(); showToast('Parse failed','er');
+  }
+
+  btn.disabled=false; btn.textContent='⚡ FETCH LIVE DATA';
+}
+
+async function fetchWithTimeout(url, ms) {
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), ms);
+  try {
+    const r = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(tid);
+    return r;
+  } catch(e) { clearTimeout(tid); throw e; }
+}
+
+// ── CSV ANALYZE ───────────────────────────────────────────────
+function analyzeCSV() {
+  const raw = document.getElementById('csvInput').value.trim();
+  if (!raw) { showToast('Paste CSV first','er'); return; }
+  const candles = parseCSV(raw);
+  if (candles.length < 5) { showToast('Need at least 5 candles','er'); return; }
+  state.candles = candles;
+  log(`<span class="ok">✓ ${candles.length} candles from CSV</span>`);
+  runDetection(candles);
+}
+
+function parseCSV(raw) {
+  const lines = raw.trim().split('\n').filter(l=>l.trim());
+  const out   = [];
+  const start = isNaN(parseFloat(lines[0].split(',')[1])) ? 1 : 0;
+  for (let i=start; i<lines.length; i++) {
+    const p = lines[i].split(',').map(x=>x.trim());
+    if (p.length<5) continue;
+    const o=+p[1],h=+p[2],l=+p[3],c=+p[4];
+    if (isNaN(o)||isNaN(h)||isNaN(l)||isNaN(c)) continue;
+    out.push({date:p[0],open:o,high:h,low:l,close:c});
+  }
+  return out;
+}
+
+function runDetection(candles) {
+  const result = detectPhase(candles);
+  const rec    = getRec(result);
+  state.result = {...result,...rec};
+  renderResults(candles, result, rec);
+  showToast(`${result.phase} — ${result.confidence}% confidence`,'ok');
+}
+
+// ── INDICATORS ────────────────────────────────────────────────
+function rsi(closes, p=14) {
+  if(closes.length<p+1) return 50;
+  let g=0,l=0;
+  for(let i=closes.length-p;i<closes.length;i++){const d=closes[i]-closes[i-1];d>0?g+=d:l+=Math.abs(d);}
+  const ag=g/p,al=l/p;
+  return al===0?100:parseFloat((100-100/(1+ag/al)).toFixed(2));
+}
+function ema(closes, p) {
+  if(closes.length<p) return closes[closes.length-1];
+  const k=2/(p+1);
+  let e=closes.slice(0,p).reduce((a,b)=>a+b,0)/p;
+  for(let i=p;i<closes.length;i++) e=closes[i]*k+e*(1-k);
+  return parseFloat(e.toFixed(6));
+}
+function atr(candles,p=14) {
+  if(candles.length<2) return 0;
+  const trs=[];
+  for(let i=1;i<candles.length;i++)
+    trs.push(Math.max(candles[i].high-candles[i].low,Math.abs(candles[i].high-candles[i-1].close),Math.abs(candles[i].low-candles[i-1].close)));
+  const s=trs.slice(-p);
+  return parseFloat((s.reduce((a,b)=>a+b,0)/s.length).toFixed(6));
+}
+
+// ── PHASE DETECTION ───────────────────────────────────────────
+function detectPhase(candles) {
+  const closes=candles.map(c=>c.close), n=candles.length;
+  const RSI=rsi(closes), EMA20=ema(closes,Math.min(20,n)), EMA50=ema(closes,Math.min(50,n));
+  const ATR=atr(candles), last=closes[n-1], first=closes[0];
+  const hh=Math.max(...candles.map(c=>c.high)), ll=Math.min(...candles.map(c=>c.low));
+  const range=hh-ll, pch=((last-first)/first)*100, atrPct=(ATR/last)*100;
+  const rec10=candles.slice(-Math.min(10,n));
+  let hhc=0,llc=0;
+  for(let i=1;i<rec10.length;i++){if(rec10[i].high>rec10[i-1].high)hhc++;if(rec10[i].low<rec10[i-1].low)llc++;}
+  const rng10=Math.max(...rec10.map(c=>c.high))-Math.min(...rec10.map(c=>c.low));
+  const tight=rng10/range;
+  const bodies=candles.map(c=>Math.abs(c.close-c.open));
+  const avgB=bodies.reduce((a,b)=>a+b,0)/bodies.length;
+  const recB=bodies.slice(-5).reduce((a,b)=>a+b,0)/5;
+  const bsig=recB/avgB;
+  const espPct=(Math.abs(EMA20-EMA50)/last)*100;
+
+  let aS=0,cS=0,dS=0;
+  if(RSI<40)aS+=30;else if(RSI<=60)cS+=25;else dS+=30;
+  if(pch>1)dS+=20;else if(pch<-1)aS+=20;else cS+=20;
+  if(tight<0.3)cS+=25;else if(tight>0.6){aS+=15;dS+=15;}
+  if(hhc>llc)dS+=15;else if(llc>hhc)aS+=15;else cS+=15;
+  if(EMA20>EMA50&&espPct>0.1)dS+=10;else if(EMA20<EMA50&&espPct>0.1)aS+=10;else cS+=10;
+  if(bsig>1.3){aS+=10;dS+=10;}else cS+=10;
+  if(atrPct>0.5){aS+=5;dS+=5;}else cS+=15;
+
+  const tot=aS+cS+dS;
+  const aP=Math.round(aS/tot*100),cP=Math.round(cS/tot*100),dP=Math.round(dS/tot*100);
+  let phase,conf,cls;
+  if(aS>=cS&&aS>=dS){phase='ACCUMULATION';conf=aP;cls='accum';}
+  else if(cS>=aS&&cS>=dS){phase='CONSOLIDATION';conf=cP;cls='consolid';}
+  else{phase='DISTRIBUTION';conf=dP;cls='distrib';}
+  return{phase,conf,cls,RSI,EMA20,EMA50,ATR,atrPct,pch,espPct,bsig,hh,ll,range,last};
+}
+
+function getRec(r) {
+  const{phase,RSI,EMA20,EMA50,atrPct,hh,ll}=r;
+  const dp=v=>v.toFixed(v>100?2:5);
+  if(phase==='ACCUMULATION') return{sig:'WATCH FOR LONGS',bias:'Bullish Reversal Expected',rec:'BUY',rCls:'buy',level:`Support: ${dp(ll)}`,risk:atrPct>0.8?'High volatility — widen stops':'Normal risk',note:`Accumulation detected. Smart money absorbing near ${dp(ll)}. Wait for Order Block or bullish confirmation candle before entering long.`,rsub:'Look for bullish confirmation'};
+  if(phase==='CONSOLIDATION') return{sig:'WAIT — NO TRADE',bias:'Sideways / Range Bound',rec:'WAIT',rCls:'wait',level:`Range: ${dp(ll)} — ${dp(hh)}`,risk:'False breakout risk HIGH',note:`Price is range-bound between ${dp(ll)} and ${dp(hh)}. Do not trade inside. Wait for confirmed breakout on your timeframe.`,rsub:'Await breakout confirmation'};
+  return{sig:EMA20>EMA50?'TRAIL LONGS / TAKE PROFIT':'WATCH FOR SHORTS',bias:EMA20>EMA50?'Bullish Trend Maturing':'Bearish Pressure',rec:'SELL',rCls:'sell',level:`Resistance: ${dp(hh)}`,risk:RSI>75?'Overbought — reversal risk HIGH':'Distribution in progress',note:EMA20>EMA50?`Uptrend maturing near ${dp(hh)}. Look for reversal signals and failed highs.`:`Bearish phase. Look for pullbacks to broken support for short entries.`,rsub:EMA20>EMA50?'Watch for reversal':'Trend continuation'};
+}
+
+// ── RENDER ────────────────────────────────────────────────────
+function renderResults(candles, r, rec) {
+  hideLoad();
+  document.getElementById('emptyState').style.display='none';
+  document.getElementById('results').style.display='flex';
+
+  const pn=document.getElementById('pName');
+  pn.textContent=r.phase; pn.className=`pname ${r.cls}`;
+  const cb=document.getElementById('cBar');
+  cb.className=`cbar ${r.cls}`;
+  setTimeout(()=>cb.style.width=r.conf+'%',80);
+  document.getElementById('cPct').textContent=`${r.conf}% confidence`;
+  document.getElementById('mTag').textContent=`${state.market} ${state.tf}`;
+  document.getElementById('latestPrice').textContent=r.last.toFixed(r.last>100?2:5);
+
+  const rv=document.getElementById('recVal');
+  rv.textContent=rec.rec; rv.className=`rval ${rec.rCls}`;
+  document.getElementById('recSub').textContent=rec.rsub;
+
+  document.getElementById('sCandles').textContent=candles.length;
+  document.getElementById('sRange').textContent=r.range.toFixed(r.range>100?2:5);
+  const te=document.getElementById('sTrend');
+  te.textContent=r.pch>=0?'▲ UP':'▼ DOWN';
+  te.className=`scval ${r.pch>=0?'cgr':'cr'}`;
+  document.getElementById('sTrendSub').textContent=`${r.pch>=0?'+':''}${r.pch.toFixed(2)}%`;
+  document.getElementById('sVol').textContent=r.atrPct.toFixed(3)+'%';
+  const me=document.getElementById('sMom');
+  me.textContent=r.RSI>60?'STRONG':r.RSI>40?'NEUTRAL':'WEAK';
+  me.className=`scval ${r.RSI>60?'cgr':r.RSI>40?'cy':'cr'}`;
+  document.getElementById('sMomSub').textContent=`RSI: ${r.RSI}`;
+
+  // Indicators
+  document.getElementById('iRSI').textContent=r.RSI.toFixed(1);
+  document.getElementById('iRSIsub').textContent=r.RSI>70?'Overbought':r.RSI<30?'Oversold':'Neutral';
+  document.getElementById('iRSIbar').style.width=r.RSI+'%';
+  document.getElementById('iRSIbar').style.background=r.RSI>70?'#ff1744':r.RSI<30?'#00e676':'#00d4ff';
+  document.getElementById('iEMA').textContent=r.espPct.toFixed(3)+'%';
+  document.getElementById('iEMAsub').textContent=r.EMA20>r.EMA50?'EMA20>EMA50 (Bullish)':'EMA20<EMA50 (Bearish)';
+  document.getElementById('iEMAbar').style.width=Math.min(r.espPct*20,100)+'%';
+  document.getElementById('iBody').textContent=r.bsig.toFixed(2)+'x';
+  document.getElementById('iBodysub').textContent=r.bsig>1.3?'Above avg activity':'Normal activity';
+  document.getElementById('iBodybar').style.width=Math.min(r.bsig*50,100)+'%';
+  document.getElementById('iBodybar').style.background=r.bsig>1.3?'#00e676':'#ffd600';
+
+  document.getElementById('rcSignal').textContent=rec.sig;
+  document.getElementById('rcBias').textContent=rec.bias;
+  document.getElementById('rcLevel').textContent=rec.level;
+  document.getElementById('rcRisk').textContent=rec.risk;
+  document.getElementById('rcNote').textContent=rec.note;
+  document.getElementById('cTitle').textContent=`${state.market} ${state.tf} — EMA 20/50`;
+
+  drawChart(candles);
+}
+
+// ── CHART ─────────────────────────────────────────────────────
+function drawChart(candles) {
+  const labels=candles.map(c=>c.date.length>10?c.date.slice(0,10):c.date);
+  const closes=candles.map(c=>c.close);
+  const n=candles.length;
+  const e20=[],e50=[];
+  for(let i=0;i<n;i++){const s=closes.slice(0,i+1);e20.push(ema(s,Math.min(20,s.length)));e50.push(ema(s,Math.min(50,s.length)));}
+  if(chartInst) chartInst.destroy();
+  chartInst=new Chart(document.getElementById('priceChart'),{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'Close',data:closes,borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,0.04)',tension:0.3,fill:true,pointRadius:n>100?0:2,borderWidth:2,order:1},
+      {label:'EMA20',data:e20,borderColor:'rgba(200,168,75,0.8)',tension:0.3,fill:false,pointRadius:0,borderWidth:1.5,order:2},
+      {label:'EMA50',data:e50,borderColor:'rgba(255,23,68,0.5)',tension:0.3,fill:false,pointRadius:0,borderWidth:1.5,borderDash:[4,4],order:3}
+    ]},
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{display:true,labels:{color:'#6a8090',font:{size:9,family:"'Share Tech Mono'"},boxWidth:18,padding:10}},
+        tooltip:{backgroundColor:'rgba(7,9,14,0.95)',borderColor:'rgba(0,212,255,0.2)',borderWidth:1,
+          titleColor:'#00d4ff',bodyColor:'#c8d8e8',
+          titleFont:{family:"'Share Tech Mono'",size:9},bodyFont:{family:"'Share Tech Mono'",size:9},
+          callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(5)}`}}
+      },
+      scales:{
+        x:{ticks:{color:'#4a6070',font:{size:8},maxTicksLimit:10,maxRotation:0},grid:{color:'rgba(255,255,255,0.025)'}},
+        y:{ticks:{color:'#4a6070',font:{size:8},callback:v=>v.toFixed(4)},grid:{color:'rgba(255,255,255,0.025)'}}
+      },
+      animation:{duration:700},interaction:{mode:'index',intersect:false}
+    }
+  });
+}
+
+// ── UTILS ─────────────────────────────────────────────────────
+function showLoad() {
+  document.getElementById('emptyState').style.display='none';
+  document.getElementById('results').style.display='none';
+  document.getElementById('loadingState').style.display='flex';
+}
+function hideLoad() { document.getElementById('loadingState').style.display='none'; }
+function log(html) { document.getElementById('logBox').innerHTML=html; }
+function showToast(msg,cls='') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`toast ${cls} show`;
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+function exportCSV() {
+  if(!state.result){showToast('Run analysis first','er');return;}
+  const r=state.result;
+  let csv=`Market,${state.market}\nTF,${state.tf}\nDate,${new Date().toISOString()}\nPhase,${r.phase}\nConf,${r.conf}%\nRSI,${r.RSI}\nSignal,${r.sig}\n\ndate,open,high,low,close\n`;
+  state.candles.forEach(c=>{csv+=`${c.date},${c.open},${c.high},${c.low},${c.close}\n`;});
+  dl(csv,'text/csv',`phase_${state.market.replace('/','')}_${state.tf}.csv`);
+  showToast('CSV exported','ok');
+}
+function exportTXT() {
+  if(!state.result){showToast('Run analysis first','er');return;}
+  const r=state.result,L='─'.repeat(46);
+  let t=`PHASE DETECTOR REPORT\n${L}\nMarket: ${state.market} | TF: ${state.tf}\nDate: ${new Date().toLocaleString()}\nCandles: ${state.candles.length}\n${L}\nPHASE: ${r.phase}\nConf: ${r.conf}%\nRSI: ${r.RSI} | EMA20: ${r.EMA20} | EMA50: ${r.EMA50}\n${L}\nSignal: ${r.sig}\nBias: ${r.bias}\nLevel: ${r.level}\nRisk: ${r.risk}\nNote: ${r.note}\n${L}\n`;
+  dl(t,'text/plain',`report_${state.market.replace('/','')}_${state.tf}.txt`);
+  showToast('Report exported','ok');
+}
+function dl(content,type,name) {
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type}));
+  a.download=name; a.click();
+}
+function resetAll() {
+  document.getElementById('csvInput').value='';
+  state.candles=[];state.result=null;
+  document.getElementById('emptyState').style.display='flex';
+  document.getElementById('results').style.display='none';
+  hideLoad();
+  if(chartInst){chartInst.destroy();chartInst=null;}
+  log('<span class="info">» Reset. Ready.</span>');
+  showToast('Reset');
+}
+</script>
+</body>
+</html>
