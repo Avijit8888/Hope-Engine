@@ -1,119 +1,243 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Record Entry | Hope Engine</title>
-<link rel="stylesheet" href="css/style.css">
-</head>
-<body>
+/* =============================
+   GLOBAL STYLES
+============================= */
 
-<h1>Record Entry</h1>
+* {
+    box-sizing: border-box;
+}
 
-<label>Entry Type</label>
-<select id="entryType">
-    <option value="intraday">Intraday</option>
-    <option value="daily_close">Daily Close</option>
-</select>
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #0b0b0f, #11111a);
+    color: #ffffff;
+}
 
-<br><br>
+/* =============================
+   CONTAINER
+============================= */
 
-<label>Mood (0 - 1)</label>
-<input type="range" id="mood" min="0" max="1" step="0.01" value="0.5">
-<span id="moodValue">0.50</span>
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 30px 20px;
+}
 
-<br><br>
+/* =============================
+   HEADER
+============================= */
 
-<label>Energy (1 - 10)</label>
-<input type="number" id="energy" min="1" max="10" value="5">
+header {
+    text-align: center;
+    margin-bottom: 50px;
+}
 
-<br><br>
+h1 {
+    color: #d4af37;
+    font-weight: 600;
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}
 
-<label>Focus (1 - 10)</label>
-<input type="number" id="focus" min="1" max="10" value="5">
+.quote {
+    font-style: italic;
+    opacity: 0.8;
+    font-size: 0.95rem;
+}
 
-<br><br>
+/* =============================
+   JOURNAL SECTION
+============================= */
 
-<label>Discipline (1 - 10)</label>
-<input type="number" id="discipline" min="1" max="10" value="5">
+.journal h2 {
+    margin-bottom: 20px;
+    font-weight: 500;
+}
 
-<br><br>
+.journal textarea {
+    width: 100%;
+    height: 140px;
+    padding: 15px;
+    border-radius: 12px;
+    border: none;
+    margin-bottom: 25px;
+    background: #15151d;
+    color: white;
+    font-size: 0.95rem;
+    resize: none;
+    transition: 0.3s ease;
+}
 
-<label>Notes</label>
-<textarea id="notes"></textarea>
+.journal textarea:focus {
+    outline: none;
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+}
 
-<br><br>
+/* =============================
+   SLIDERS
+============================= */
 
-<h3>Psychological Index: <span id="preview">0.50</span></h3>
+.sliders {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
 
-<button id="saveBtn">Save Entry</button>
-<button id="exportBtn">Export CSV</button>
+.slider-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
 
-<br><br>
+input[type="range"] {
+    width: 100%;
+    appearance: none;
+    height: 6px;
+    border-radius: 5px;
+    background: #2a2a35;
+    outline: none;
+}
 
-<a href="index.html">Back Home</a>
+/* Slider Thumb */
+input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #d4af37;
+    cursor: pointer;
+}
 
-<script src="js/engine.js"></script>
+input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #d4af37;
+    cursor: pointer;
+}
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
+/* =============================
+   BUTTON
+============================= */
 
-    const mood = document.getElementById("mood");
-    const moodValue = document.getElementById("moodValue");
-    const energy = document.getElementById("energy");
-    const focus = document.getElementById("focus");
-    const discipline = document.getElementById("discipline");
-    const preview = document.getElementById("preview");
+button {
+    margin-top: 25px;
+    padding: 14px;
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    background: #d4af37;
+    color: #000;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
 
-    function updatePreview() {
-        moodValue.textContent = parseFloat(mood.value).toFixed(2);
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(212, 175, 55, 0.4);
+}
 
-        const index = HopeEngine.calculateIndex(
-            parseFloat(mood.value),
-            parseFloat(energy.value),
-            parseFloat(focus.value),
-            parseFloat(discipline.value)
-        );
+/* =============================
+   DASHBOARD LINK
+============================= */
 
-        preview.textContent = index;
+.dashboard-link {
+    display: block;
+    margin-top: 25px;
+    text-align: center;
+    color: #d4af37;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: 0.3s ease;
+}
+
+.dashboard-link:hover {
+    opacity: 0.8;
+}
+
+/* =============================
+   TABLET RESPONSIVE
+============================= */
+
+@media (min-width: 768px) {
+    .sliders {
+        flex-direction: row;
+        justify-content: space-between;
     }
 
-    mood.addEventListener("input", updatePreview);
-    energy.addEventListener("input", updatePreview);
-    focus.addEventListener("input", updatePreview);
-    discipline.addEventListener("input", updatePreview);
+    .slider-group {
+        width: 30%;
+    }
+}
 
-    document.getElementById("saveBtn").addEventListener("click", () => {
+/* =============================
+   DESKTOP PREMIUM LAYOUT
+============================= */
 
-        const index = HopeEngine.calculateIndex(
-            parseFloat(mood.value),
-            parseFloat(energy.value),
-            parseFloat(focus.value),
-            parseFloat(discipline.value)
-        );
+@media (min-width: 992px) {
 
-        const entry = {
-            id: crypto.randomUUID(),
-            timestamp: new Date().toISOString(),
-            entryType: document.getElementById("entryType").value,
-            mood: parseFloat(mood.value),
-            energy: parseFloat(energy.value),
-            focus: parseFloat(focus.value),
-            discipline: parseFloat(discipline.value),
-            weights: HopeEngine.getActiveWeights(),
-            psychologicalIndex: index,
-            notes: document.getElementById("notes").value
-        };
+    .journal {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 50px;
+        align-items: start;
+    }
 
-        HopeEngine.saveEntry(entry);
-        alert("Entry Saved!");
-    });
+    .journal textarea {
+        height: 220px;
+    }
 
-    document.getElementById("exportBtn").addEventListener("click", () => {
-        HopeEngine.exportCSV();
-    });
+    .sliders {
+        flex-direction: column;
+    }
 
-    updatePreview();
-});
-</script>
+    button {
+        width: 100%;
+    }
+}
+/* =============================
+   DASHBOARD
+============================= */
 
-</body>
-</html>
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.card {
+    background: #15151d;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.card h3 {
+    color: #d4af37;
+    margin-bottom: 10px;
+}
+
+.card p {
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.chart-container {
+    background: #15151d;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+@media (min-width: 992px) {
+    .dashboard {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+    }
+
+    .chart-container {
+        grid-column: span 3;
+    }
+}
