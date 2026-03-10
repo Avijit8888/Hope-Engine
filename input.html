@@ -1,243 +1,250 @@
-/* =============================
-   GLOBAL STYLES
-============================= */
+Got it! Here's the full code to copy-paste:
 
-* {
-    box-sizing: border-box;
-}
+---
 
-body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #0b0b0f, #11111a);
-    color: #ffffff;
-}
+**File 2 of 6 — `input.html`**
 
-/* =============================
-   CONTAINER
-============================= */
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Record Entry | Hope Engine</title>
+<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
 
-.container {
-    max-width: 1100px;
-    margin: auto;
-    padding: 30px 20px;
-}
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-logo"><a href="index.html">HOPE<span>ENGINE</span></a></div>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">Home</a>
+    <a class="nav-link active" href="input.html">Record</a>
+    <a class="nav-link" href="dashboard.html">Dashboard</a>
+    <a class="nav-link" href="journal.html">Journal</a>
+    <a class="nav-link" href="setting.html">Settings</a>
+  </div>
+  <div class="nav-status">LIVE</div>
+</nav>
 
-/* =============================
-   HEADER
-============================= */
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <a href="index.html">🏠<span>Home</span></a>
+  <a href="input.html" class="active">➕<span>Record</span></a>
+  <a href="dashboard.html">📊<span>Dash</span></a>
+  <a href="journal.html">📖<span>Journal</span></a>
+  <a href="setting.html">⚙<span>Settings</span></a>
+</nav>
 
-header {
-    text-align: center;
-    margin-bottom: 50px;
-}
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
-h1 {
-    color: #d4af37;
-    font-weight: 600;
-    font-size: 2.2rem;
-    margin-bottom: 10px;
-}
+<!-- PAGE -->
+<div class="page-wrap">
 
-.quote {
-    font-style: italic;
-    opacity: 0.8;
-    font-size: 0.95rem;
-}
+  <div class="page-header">
+    <div>
+      <div class="page-title">RECORD ENTRY</div>
+      <div class="page-sub">Log your psychological state with brutal honesty</div>
+    </div>
+  </div>
 
-/* =============================
-   JOURNAL SECTION
-============================= */
+  <div class="input-grid">
 
-.journal h2 {
-    margin-bottom: 20px;
-    font-weight: 500;
-}
+    <!-- LEFT: SLIDERS -->
+    <div class="input-left">
 
-.journal textarea {
-    width: 100%;
-    height: 140px;
-    padding: 15px;
-    border-radius: 12px;
-    border: none;
-    margin-bottom: 25px;
-    background: #15151d;
-    color: white;
-    font-size: 0.95rem;
-    resize: none;
-    transition: 0.3s ease;
-}
+      <div class="field-block">
+        <div class="field-label">Entry Type</div>
+        <select id="entryType">
+          <option value="daily_close">Daily Close</option>
+          <option value="intraday">Intraday</option>
+        </select>
+      </div>
 
-.journal textarea:focus {
-    outline: none;
-    box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
-}
+      <div class="field-block">
+        <div class="field-label">
+          Mood
+          <span class="field-val" id="moodDisplay">0.50</span>
+        </div>
+        <input type="range" id="mood" min="0" max="1" step="0.01" value="0.5" oninput="updateInput()">
+      </div>
 
-/* =============================
-   SLIDERS
-============================= */
+      <div class="field-block">
+        <div class="field-label">
+          Energy
+          <span class="field-val" id="energyDisplay">5 / 10</span>
+        </div>
+        <input type="range" id="energy" min="1" max="10" step="1" value="5" class="gold-range" oninput="updateInput()">
+      </div>
 
-.sliders {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
+      <div class="field-block">
+        <div class="field-label">
+          Focus
+          <span class="field-val" id="focusDisplay">5 / 10</span>
+        </div>
+        <input type="range" id="focus" min="1" max="10" step="1" value="5" class="green-range" oninput="updateInput()">
+      </div>
 
-.slider-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 0.9rem;
-}
+      <div class="field-block">
+        <div class="field-label">
+          Discipline
+          <span class="field-val" id="disciplineDisplay">5 / 10</span>
+        </div>
+        <input type="range" id="discipline" min="1" max="10" step="1" value="5" oninput="updateInput()">
+      </div>
 
-input[type="range"] {
-    width: 100%;
-    appearance: none;
-    height: 6px;
-    border-radius: 5px;
-    background: #2a2a35;
-    outline: none;
-}
+      <div class="field-block">
+        <div class="field-label">Notes</div>
+        <textarea id="notes" placeholder="What affected your state today? Honest reflection..."></textarea>
+      </div>
 
-/* Slider Thumb */
-input[type="range"]::-webkit-slider-thumb {
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #d4af37;
-    cursor: pointer;
-}
+      <button class="save-btn" onclick="saveEntry()">▶ SAVE ENTRY</button>
+      <button class="save-btn export-btn-sm" onclick="HopeEngine.exportCSV()">↓ EXPORT CSV</button>
 
-input[type="range"]::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #d4af37;
-    cursor: pointer;
-}
+    </div>
 
-/* =============================
-   BUTTON
-============================= */
+    <!-- RIGHT: INDEX + RADAR -->
+    <div class="input-right">
 
-button {
-    margin-top: 25px;
-    padding: 14px;
-    width: 100%;
-    border: none;
-    border-radius: 10px;
-    background: #d4af37;
-    color: #000;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: 0.3s ease;
-}
+      <div class="index-label-sm">Psychological Index</div>
+      <div class="index-display">
+        <div class="index-big" id="indexPreview">0.50</div>
+        <div class="index-advice" id="indexAdvice">Adjust sliders to calculate</div>
+      </div>
 
-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 18px rgba(212, 175, 55, 0.4);
-}
+      <div class="radar-section-label">State Radar</div>
+      <div class="radar-wrap">
+        <canvas id="radarChart" width="220" height="220"></canvas>
+      </div>
+      <div class="radar-legend">
+        Mood · Energy · Focus · Discipline
+      </div>
 
-/* =============================
-   DASHBOARD LINK
-============================= */
+    </div>
+  </div>
+</div>
 
-.dashboard-link {
-    display: block;
-    margin-top: 25px;
-    text-align: center;
-    color: #d4af37;
-    text-decoration: none;
-    font-size: 0.95rem;
-    transition: 0.3s ease;
-}
+<script src="js/engine.js"></script>
+<script>
+let radarInst = null;
 
-.dashboard-link:hover {
-    opacity: 0.8;
-}
+function updateInput() {
+  const mood       = parseFloat(document.getElementById('mood').value);
+  const energy     = parseFloat(document.getElementById('energy').value);
+  const focus      = parseFloat(document.getElementById('focus').value);
+  const discipline = parseFloat(document.getElementById('discipline').value);
 
-/* =============================
-   TABLET RESPONSIVE
-============================= */
+  document.getElementById('moodDisplay').textContent       = mood.toFixed(2);
+  document.getElementById('energyDisplay').textContent     = `${energy} / 10`;
+  document.getElementById('focusDisplay').textContent      = `${focus} / 10`;
+  document.getElementById('disciplineDisplay').textContent = `${discipline} / 10`;
 
-@media (min-width: 768px) {
-    .sliders {
-        flex-direction: row;
-        justify-content: space-between;
+  document.getElementById('mood').style.setProperty('--fill', (mood * 100) + '%');
+  document.getElementById('energy').style.setProperty('--fill', ((energy - 1) / 9 * 100) + '%');
+  document.getElementById('focus').style.setProperty('--fill', ((focus - 1) / 9 * 100) + '%');
+  document.getElementById('discipline').style.setProperty('--fill', ((discipline - 1) / 9 * 100) + '%');
+
+  const idx = HopeEngine.calculateIndex(mood, energy, focus, discipline);
+  const preview = document.getElementById('indexPreview');
+  preview.textContent = idx.toFixed(2);
+
+  if (idx >= 0.70) {
+    preview.style.color = 'var(--green)';
+    preview.style.textShadow = '0 0 40px rgba(0,230,118,0.3)';
+  } else if (idx >= 0.40) {
+    preview.style.color = 'var(--gold)';
+    preview.style.textShadow = '0 0 40px rgba(200,168,75,0.3)';
+  } else {
+    preview.style.color = 'var(--red)';
+    preview.style.textShadow = '0 0 40px rgba(255,23,68,0.3)';
+  }
+
+  const advice = [
+    [0.85, "Peak state — enter with full conviction"],
+    [0.70, "Strong state — trade with confidence"],
+    [0.55, "Decent state — be selective"],
+    [0.40, "Borderline — reduce size or skip"],
+    [0.00, "Low state — do not trade today"]
+  ];
+  document.getElementById('indexAdvice').textContent =
+    advice.find(([t]) => idx >= t)?.[1] || advice[4][1];
+
+  if (radarInst) radarInst.destroy();
+  radarInst = new Chart(document.getElementById('radarChart'), {
+    type: 'radar',
+    data: {
+      labels: ['Mood', 'Energy', 'Focus', 'Discipline'],
+      datasets: [{
+        data: [mood * 10, energy, focus, discipline],
+        backgroundColor: 'rgba(0,212,255,0.10)',
+        borderColor: '#00d4ff',
+        pointBackgroundColor: '#00d4ff',
+        borderWidth: 2,
+        pointRadius: 4
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        r: {
+          min: 0, max: 10,
+          ticks: { display: false },
+          grid: { color: 'rgba(0,212,255,0.08)' },
+          angleLines: { color: 'rgba(0,212,255,0.08)' },
+          pointLabels: {
+            color: '#6a8090',
+            font: { size: 10, family: "'Share Tech Mono'" }
+          }
+        }
+      },
+      animation: { duration: 300 }
     }
-
-    .slider-group {
-        width: 30%;
-    }
+  });
 }
 
-/* =============================
-   DESKTOP PREMIUM LAYOUT
-============================= */
+function saveEntry() {
+  const mood       = parseFloat(document.getElementById('mood').value);
+  const energy     = parseFloat(document.getElementById('energy').value);
+  const focus      = parseFloat(document.getElementById('focus').value);
+  const discipline = parseFloat(document.getElementById('discipline').value);
+  const notes      = document.getElementById('notes').value;
+  const entryType  = document.getElementById('entryType').value;
 
-@media (min-width: 992px) {
+  const entry = {
+    id: crypto.randomUUID(),
+    timestamp: new Date().toISOString(),
+    entryType,
+    mood, energy, focus, discipline,
+    weights: HopeEngine.getWeights(),
+    psychologicalIndex: HopeEngine.calculateIndex(mood, energy, focus, discipline),
+    notes
+  };
 
-    .journal {
-        display: grid;
-        grid-template-columns: 1.5fr 1fr;
-        gap: 50px;
-        align-items: start;
-    }
+  HopeEngine.saveEntry(entry);
+  showToast("Entry saved successfully", "success");
 
-    .journal textarea {
-        height: 220px;
-    }
-
-    .sliders {
-        flex-direction: column;
-    }
-
-    button {
-        width: 100%;
-    }
-}
-/* =============================
-   DASHBOARD
-============================= */
-
-.dashboard {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
+  document.getElementById('notes').value      = '';
+  document.getElementById('mood').value       = '0.5';
+  document.getElementById('energy').value     = '5';
+  document.getElementById('focus').value      = '5';
+  document.getElementById('discipline').value = '5';
+  updateInput();
 }
 
-.card {
-    background: #15151d;
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-.card h3 {
-    color: #d4af37;
-    margin-bottom: 10px;
-}
+document.addEventListener("DOMContentLoaded", updateInput);
+</script>
 
-.card p {
-    font-size: 1.4rem;
-    font-weight: 600;
-}
-
-.chart-container {
-    background: #15151d;
-    padding: 20px;
-    border-radius: 12px;
-}
-
-@media (min-width: 992px) {
-    .dashboard {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 30px;
-    }
-
-    .chart-container {
-        grid-column: span 3;
-    }
-}
+</body>
+</html>
+```
