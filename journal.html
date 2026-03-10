@@ -1,65 +1,153 @@
-<header class="navbar">
-    <div class="logo">Hope Engine</div>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="input.html">Record</a>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="journal.html">Journal</a>
-        <a href="settings.html">Settings</a>
-    </nav>
-</header>
+**File 4 of 6 — `journal.html`**
+
+```html
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hope Engine | Journal</title>
 <link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<header class="navbar">
-    <div class="logo">Hope Engine</div>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="input.html">Record</a>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="journal.html">Journal</a>
-        <a href="settings.html">Settings</a>
-    </nav>
-</header>
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-logo"><a href="index.html">HOPE<span>ENGINE</span></a></div>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">Home</a>
+    <a class="nav-link" href="input.html">Record</a>
+    <a class="nav-link" href="dashboard.html">Dashboard</a>
+    <a class="nav-link active" href="journal.html">Journal</a>
+    <a class="nav-link" href="setting.html">Settings</a>
+  </div>
+  <div class="nav-status">LIVE</div>
+</nav>
 
-<div class="container">
-    <h1>Entry History</h1>
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <a href="index.html">🏠<span>Home</span></a>
+  <a href="input.html">➕<span>Record</span></a>
+  <a href="dashboard.html">📊<span>Dash</span></a>
+  <a href="journal.html" class="active">📖<span>Journal</span></a>
+  <a href="setting.html">⚙<span>Settings</span></a>
+</nav>
 
-    <table id="entryTable">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Index</th>
-                <th>Discipline</th>
-                <th>Notes</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
+<!-- PAGE -->
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">JOURNAL</div>
+      <div class="page-sub">Your full psychological trading history</div>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="journal-toolbar">
+    <div class="filter-group">
+      <button class="filter-btn active" onclick="filterJournal('all', this)">All</button>
+      <button class="filter-btn" onclick="filterJournal('daily_close', this)">Daily Close</button>
+      <button class="filter-btn" onclick="filterJournal('intraday', this)">Intraday</button>
+      <button class="filter-btn" onclick="filterJournal('high', this)">High (&gt;0.7)</button>
+      <button class="filter-btn" onclick="filterJournal('low', this)">Low (&lt;0.4)</button>
+    </div>
+    <button class="export-btn" onclick="HopeEngine.exportCSV()">↓ Export CSV</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="journal-table-wrap">
+    <table class="journal-table">
+      <thead>
+        <tr>
+          <th>Date & Time</th>
+          <th>Type</th>
+          <th>Index</th>
+          <th>Mood</th>
+          <th>Energy</th>
+          <th>Focus</th>
+          <th>Discipline</th>
+          <th>Phase</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody id="journalBody">
+        <tr>
+          <td colspan="9" class="empty-msg">
+            No entries yet. Start recording your psychological state.
+          </td>
+        </tr>
+      </tbody>
     </table>
+  </div>
+
 </div>
 
-<nav class="bottom-nav">
-    <a href="index.html">🏠</a>
-    <a href="input.html">➕</a>
-    <a href="dashboard.html">📊</a>
-    <a href="journal.html">📖</a>
-    <a href="settings.html">⚙</a>
-</nav>
-
 <script src="js/engine.js"></script>
+<script>
+function renderJournal(filter) {
+  let entries = HopeEngine.getEntries();
+
+  if (filter === 'daily_close') entries = entries.filter(e => e.entryType === 'daily_close');
+  else if (filter === 'intraday') entries = entries.filter(e => e.entryType === 'intraday');
+  else if (filter === 'high') entries = entries.filter(e => e.psychologicalIndex >= 0.7);
+  else if (filter === 'low')  entries = entries.filter(e => e.psychologicalIndex <  0.4);
+
+  const tbody = document.getElementById('journalBody');
+
+  if (!entries.length) {
+    tbody.innerHTML = `<tr><td colspan="9" class="empty-msg">${
+      filter === 'all'
+        ? 'No entries yet. Start recording your psychological state.'
+        : 'No entries match this filter.'
+    }</td></tr>`;
+    return;
+  }
+
+  // Newest first
+  entries = [...entries].reverse();
+
+  tbody.innerHTML = entries.map(e => {
+    const d        = new Date(e.timestamp);
+    const dateStr  = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+    const idx      = e.psychologicalIndex;
+    const badgeCls = idx >= 0.7 ? 'badge-hi' : idx >= 0.4 ? 'badge-mid' : 'badge-lo';
+    const typeCls  = e.entryType === 'daily_close' ? 'type-daily' : 'type-intraday';
+    const typeLabel = e.entryType === 'daily_close' ? 'Daily' : 'Intraday';
+    const phase    = idx >= 0.65 ? 'Accumulation' : idx >= 0.45 ? 'Consolidation' : 'Distribution';
+    const focusColor = e.focus >= 8 ? 'var(--green)' : e.focus >= 5 ? 'var(--text)' : 'var(--red)';
+    const discColor  = e.discipline >= 8 ? 'var(--green)' : e.discipline >= 5 ? 'var(--text)' : 'var(--red)';
+
+    return `<tr>
+      <td style="color:var(--textD)">${dateStr}</td>
+      <td><span class="type-tag ${typeCls}">${typeLabel}</span></td>
+      <td><span class="badge ${badgeCls}">${idx.toFixed(2)}</span></td>
+      <td>${e.mood.toFixed(2)}</td>
+      <td>${e.energy}</td>
+      <td style="color:${focusColor}">${e.focus}</td>
+      <td style="color:${discColor}">${e.discipline}</td>
+      <td><span class="phase-chip">${phase}</span></td>
+      <td style="color:var(--textD);max-width:180px;overflow:hidden;text-overflow:ellipsis;">
+        ${e.notes || '--'}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterJournal(filter, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderJournal(filter);
+}
+
+document.addEventListener("DOMContentLoaded", () => renderJournal('all'));
+</script>
+
 </body>
 </html>
-<nav class="bottom-nav">
-    <a href="index.html">🏠</a>
-    <a href="input.html">➕</a>
-    <a href="dashboard.html">📊</a>
-    <a href="journal.html">📖</a>
-    <a href="settings.html">⚙</a>
-</nav>
+```
+
+---
+
+Say **next** for **File 5 — `setting.html`** 👇
